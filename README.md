@@ -1,1 +1,3 @@
-# waterview
+# waterlook
+
+Just playing with Django :)
