@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="14.3.0">
+  <zoom_level>10</zoom_level>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>290</x>
+      <y>310</y>
+      <w>210</w>
+      <h>70</h>
+    </coordinates>
+    <panel_attributes>_course_history_
+--
+revision_id
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>60</x>
+      <y>330</y>
+      <w>210</w>
+      <h>70</h>
+    </coordinates>
+    <panel_attributes>_course_
+--
+class_number: INT
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+</diagram>
