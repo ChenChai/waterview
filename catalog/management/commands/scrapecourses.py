@@ -11,9 +11,20 @@ env = environ.Env()
 class Command(BaseCommand):
     help = "updates course list in database from API"
     
+
+        
     def handle(self, *args, **kwargs):
         newCourses = 0
+    
+        # Create existing courses as an in-memory dictionary 
+        # for fast comparisons
+        existingCourses = list(Course.objects.all())
+        existingDict = {}
 
+        # https://stackoverflow.com/questions/8550912/dictionary-of-dictionaries-in-python
+        for existing in existingCourses:
+            existingDict.setdefault(existing.subject, {})[existing.code] = True
+    
         # First, get the list of all the academic terms.
         # V3 API contains this list.
         response = requests.get(f"https://openapi.data.uwaterloo.ca/v3/Terms",
@@ -22,6 +33,8 @@ class Command(BaseCommand):
                 'x-api-key': env("OPENDATA_V3_KEY")})
         
         terms = response.json()
+        
+        # Loop through each term looking for courses that don't exist yet.
         for term in terms:
             termCode = term['code']
             print("Term: " + termCode)
@@ -34,20 +47,10 @@ class Command(BaseCommand):
             
             courses = response.json()['data']
             
-            # Update existing courses as an in-memory dictionary 
-            # for fast comparisons
-            existingCourses = list(Course.objects.all())
-            existingDict = {}
-
-            # https://stackoverflow.com/questions/8550912/dictionary-of-dictionaries-in-python
-            for existing in existingCourses:
-                existingDict.setdefault(existing.subject, {})[existing.code] = True
-        
             for course in courses:
                 s = course['subject']
                 c = str(course['catalog_number'])
 
-                
                 # Check if a course already exists in database;
                 # if not, insert it into the database.
                 if existingDict.get(s, {}).get(c, False) == True:
@@ -58,6 +61,9 @@ class Command(BaseCommand):
                     try:
                         record = Course(subject=s, code=c)
                         record.save()
+                        
+                        # Also update existing courses dictionary with new course.
+                        existingDict.setdefault(s, {})[c] = True
                         
                         newCourses += 1
 
