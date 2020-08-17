@@ -1,5 +1,19 @@
 from django.db import models
 
+class Subject(models.Model):
+    """Model representing an academic subject at UWaterloo"""
+    # subject code
+    code = models.CharField(primary_key=True, max_length=10)
+    
+    # Full name
+    name = models.CharField(max_length=100)
+    
+    class Meta:
+        ordering = ['code']
+    
+    def __str__(self):
+        return str(self.code)
+
 class Term(models.Model):
     """Model representing an academic term at UWaterloo"""
     # 4-digit term code
@@ -17,10 +31,9 @@ class Term(models.Model):
 class Course(models.Model):
     """Model representing a course at UWaterloo"""
     
-    # ~2-5 letters
-    subject = models.CharField(max_length=10, help_text="Course subject, i.e. CS, MATH")
+    subject = models.ForeignKey('Subject', on_delete=models.RESTRICT)
     
-    # ~3-4 digits
+    # ~3-4 digits normally
     code = models.CharField(max_length=10, help_text="Numbers/characters after subject for the course")
     
     
