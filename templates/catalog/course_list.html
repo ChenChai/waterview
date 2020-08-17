@@ -1,7 +1,15 @@
 {% extends "base_generic.html" %}
 
 {% block content %} 
-<p>
-Course list.
-</p>
+<h1>courses.</h1>
+{% if course_list %}
+<ul>
+	{% for course in course_list %}
+		<li>{{ course.subject }} {{ course.code }}</li>
+	{% endfor %}
+</ul>
+{% else %}
+<p>No courses found.</p>
+{% endif %}
+
 {% endblock %}

@@ -1,7 +1,15 @@
 {% extends "base_generic.html" %}
 
 {% block content %} 
-<p>
-Instructor list.
-</p>
+<h1>instructors.</h1>
+{% if instructor_list %}
+<ul>
+	{% for instructor in instructor_list %}
+		<li>{{ instructor.firstName }} {{ instructor.lastName }}</li>
+	{% endfor %}
+</ul>
+{% else %}
+<p>No instructors found.</p>
+{% endif %}
+
 {% endblock %}
