@@ -47,7 +47,7 @@ class CourseOffering(models.Model):
 class Term(models.Model):
     """Model representing an academic term at UWaterloo"""
     # 4-digit term code
-    code = models.CharField(max_length=10)
+    code = models.CharField(primary_key=True, max_length=10)
     
     # i.e. Winter 2020
     name = models.CharField(max_length=100, help_text="i.e. 'Winter 2020'")
