@@ -1,5 +1,6 @@
 from django.shortcuts import render
-from catalog.models import Term, Course, CourseOffering
+from catalog.models import Term, Course, CourseOffering, Instructor
+from django.views import generic
 
 def homepage(request):
     """View function for homepage."""
@@ -17,3 +18,17 @@ def homepage(request):
     }
     
     return render(request, 'homepage.html', context=context)
+    
+class CourseListView(generic.ListView):
+    """Generic view that will query database
+        automatically. to get data on courses and
+        display it."""
+        
+    model = Course
+    
+class InstructorListView(generic.ListView):
+    """Generic view that will query database
+        automatically. to get data on courses and
+        display it."""
+        
+    model = Instructor

@@ -6,6 +6,8 @@ body {
 	margin: 0px;
 	min-height: 100vh;
 	min-width: 100vh;
+	
+	font-family: 'Quicksand', sans-serif;
 }
 
 .navbar {
@@ -31,7 +33,7 @@ body {
 
 .navbar a:hover {
 	display: block;
-	background: grey;
+	background: #4f4f1b;
 }
 
 .navbar a:first-child {

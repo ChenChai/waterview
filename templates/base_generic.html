@@ -2,15 +2,17 @@
 <html lang="en">
 <head>
 	{% block title %}<title>waterlook</title>{% endblock %}
+	<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300&display=swap" rel="stylesheet"> 
+	
 	{% load static %}
 	<link rel="stylesheet" href="{% static 'css/styles.css' %}">
 </head>
 <body>
 	{% block navbar %} 
 	<div class="navbar">
-		<a href="{% url 'homepage' %}">Waterlook - Historical UWaterloo Data</a>
-		<a href="">Courses</a>
-		<a href="">Instructors</a>
+		<a href="{% url 'homepage' %}">waterlook.</a>
+		<a href="{% url 'courses' %}">Courses</a>
+		<a href="{% url 'instructors' %}">Instructors</a>
 	</div>
 	{% endblock %}
 	<div class="main_content">
