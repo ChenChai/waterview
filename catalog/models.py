@@ -1,6 +1,18 @@
 from django.db import models
 
-# Create your models here.
+class Term(models.Model):
+    """Model representing an academic term at UWaterloo"""
+    # 4-digit term code
+    code = models.CharField(primary_key=True, max_length=10)
+    
+    # i.e. Winter 2020
+    name = models.CharField(max_length=100, help_text="i.e. 'Winter 2020'")
+    
+    class Meta:
+        ordering = ['code']
+    
+    def __str__(self):
+        return str(self.code)
 
 class Course(models.Model):
     """Model representing a course at UWaterloo"""
@@ -29,8 +41,14 @@ class CourseOffering(models.Model):
     # Course and term are both foreign keys.
     # Use RESTRICT to prevent courses and terms from being
     # deleted from foreign tables while this exists.
-    course = models.ForeignKey('course', on_delete=models.RESTRICT)
-    term = models.ForeignKey('term', on_delete=models.RESTRICT)
+    course = models.ForeignKey('Course', on_delete=models.RESTRICT)
+    term = models.ForeignKey('Term', on_delete=models.RESTRICT)
+    
+    # i.e. Algebra for Honours Mathematics
+    name = models.CharField(max_length=100)
+    
+    # i.e. undergraduate, graduate
+    academicLevel = models.CharField(max_length=20)
     
     class Meta:
         unique_together = (('course', 'term'),)
@@ -43,18 +61,98 @@ class CourseOffering(models.Model):
     def __str__(self):
         return str(self.subject) + ' ' + str(self.term)
 
+class ClassOffering(models.Model):
+    """Model representing one class of a course offering."""
     
-class Term(models.Model):
-    """Model representing an academic term at UWaterloo"""
-    # 4-digit term code
-    code = models.CharField(primary_key=True, max_length=10)
+    # UWaterloo class number. Hopefully unique within
+    # a CourseOffering in a term. Not unique in general
+    classNum = models.CharField(max_length=10)
     
-    # i.e. Winter 2020
-    name = models.CharField(max_length=100, help_text="i.e. 'Winter 2020'")
+    # Course offering instance this class is offered under
+    courseOffering = models.ForeignKey('CourseOffering', on_delete=models.RESTRICT)
+    
+    # i.e. 'LEC 010'
+    sectionName = models.CharField(max_length=10)
+    
+    # For special topics in the course.
+    topic = models.CharField(max_length=100, null=True)
+    
+    # i.e. MC
+    campus = models.CharField(max_length=10)
+    
+    # Administrative values for enrollment
+    associatedClass: models.CharField(max_length=10)
+    relComp1: models.CharField(max_length=10, null=True)
+    relComp2: models.CharField(max_length=10, null=True)
+    
+    # Maximum number of students that can 
+    # enroll in the class
+    enrollmentCapacity = models.IntegerField()
+    
+    # Actual number of students enrolled; 
+    # may be higher than enrollmentCapacity.
+    enrollmentTotal = models.IntegerField()
     
     class Meta:
-        ordering = ['code']
+        unique_together = (('classNum', 'courseOffering'))
+        
+        # Order by sectionName for ease of reading, 
+        # can see which are lectures and which tutorials.
+        ordering = ['sectionName']
     
     def __str__(self):
-        return str(self.code)
+        return str(self.courseOffering) + ' ' + str(self.classNum)
+
     
+class Instructor(models.Model):
+    """Model representing an instructor. At the moment, 
+    instructors are unique by name, since we don't have access
+    to IDs. We'll still keep a separate primary key ID, 
+    automatically made by django."""
+    
+    firstName = models.CharField(max_length=100)
+    lastName = models.CharField(max_length=100)
+    
+    class Meta:
+        ordering = ['firstName', 'lastName']
+    
+    def __str__(self):
+        return firstName + ' ' + lastName
+    
+class ClassLocation(models.Model):
+    """Model representing one class location as presented
+        in the API query data. This information is stored
+        here with some duplication to mirror the structure
+        of the authoritative data source as closely as possible
+        in case the duplication is relevant in some instances."""
+    
+    classOffering = models.ForeignKey('ClassOffering', on_delete=models.RESTRICT)
+    
+    # If startDate == endDate, this is probably a 'fake'
+    # section we sometimes see in the data. Not sure
+    # why these show up.
+    startDate = models.CharField(max_length=10, null=True)
+    endDate = models.CharField(max_length=10, null=True)
+
+    # When the course runs.
+    startTime = models.CharField(max_length=10, null=True)
+    endTime = models.CharField(max_length=10, null=True)
+    weekdays = models.CharField(max_length=10, null=True)
+    
+    # Where the course runs.
+    building = models.CharField(max_length=100, null=True)
+    room = models.CharField(max_length=100, null=True)
+    
+    # potential for multiple instructors?
+    instructor = models.ManyToManyField(Instructor)
+    
+    class Meta:
+        # Order by startDate since most 'real' class times are null
+        ordering = ['startDate']
+
+    def __str__(self):
+        return str(self.classOffering)
+
+
+    
+
