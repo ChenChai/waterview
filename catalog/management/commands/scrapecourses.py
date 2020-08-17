@@ -11,8 +11,6 @@ env = environ.Env()
 class Command(BaseCommand):
     help = "updates course list in database from API"
     
-
-        
     def handle(self, *args, **kwargs):
         newCourses = 0
     

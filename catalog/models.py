@@ -21,11 +21,40 @@ class Course(models.Model):
         
     def __str__(self):
         """String representation of Course"""
-        return self.subject + self.code
+        return self.subject + ' ' + self.code
     
+class CourseOffering(models.Model):
+    """Model representing an offering of a course in a given term."""
     
+    # Course and term are both foreign keys.
+    # Use RESTRICT to prevent courses and terms from being
+    # deleted from foreign tables while this exists.
+    course = models.ForeignKey('course', on_delete=models.RESTRICT)
+    term = models.ForeignKey('term', on_delete=models.RESTRICT)
     
+    class Meta:
+        unique_together = (('course', 'term'),)
+        
+        # Order by course first, since users will probably
+        # want to see the offerings for a specific course
+        # rather than all the courses offered in a term.
+        ordering = ['course', 'term']
+        
+    def __str__(self):
+        return str(self.subject) + ' ' + str(self.term)
+
     
+class Term(models.Model):
+    """Model representing an academic term at UWaterloo"""
+    # 4-digit term code
+    code = models.CharField(max_length=10)
     
+    # i.e. Winter 2020
+    name = models.CharField(max_length=100, help_text="i.e. 'Winter 2020'")
     
+    class Meta:
+        ordering = ['code']
+    
+    def __str__(self):
+        return str(self.code)
     
