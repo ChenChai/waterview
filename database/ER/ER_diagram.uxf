@@ -4,8 +4,8 @@
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>605</x>
-      <y>638</y>
+      <x>451</x>
+      <y>440</y>
       <w>231</w>
       <h>275</h>
     </coordinates>
@@ -19,8 +19,8 @@ _course: Course_
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>209</x>
-      <y>649</y>
+      <x>55</x>
+      <y>451</y>
       <w>231</w>
       <h>275</h>
     </coordinates>
@@ -33,8 +33,8 @@ _code: varchar(10)_</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>1001</x>
-      <y>638</y>
+      <x>847</x>
+      <y>440</y>
       <w>308</w>
       <h>440</h>
     </coordinates>
@@ -54,8 +54,8 @@ _courseOffering: CourseOffering_</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>1507</x>
-      <y>638</y>
+      <x>1353</x>
+      <y>440</y>
       <w>341</w>
       <h>264</h>
     </coordinates>
@@ -73,8 +73,8 @@ _classOffering: ClassOffering_</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>979</x>
-      <y>1221</y>
+      <x>825</x>
+      <y>1023</y>
       <w>363</w>
       <h>495</h>
     </coordinates>
@@ -108,8 +108,8 @@ _classOffering: ClassOffering_
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>429</x>
-      <y>770</y>
+      <x>275</x>
+      <y>572</y>
       <w>198</w>
       <h>44</h>
     </coordinates>
@@ -120,8 +120,8 @@ m2=0..*</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>1144</x>
-      <y>1067</y>
+      <x>990</x>
+      <y>869</y>
       <w>55</w>
       <h>176</h>
     </coordinates>
@@ -132,8 +132,8 @@ m2=0..*</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>1298</x>
-      <y>770</y>
+      <x>1144</x>
+      <y>572</y>
       <w>231</w>
       <h>44</h>
     </coordinates>
@@ -144,8 +144,8 @@ m2=0..*</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>825</x>
-      <y>748</y>
+      <x>671</x>
+      <y>550</y>
       <w>198</w>
       <h>44</h>
     </coordinates>
@@ -156,8 +156,8 @@ m2=0..*</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>605</x>
-      <y>198</y>
+      <x>451</x>
+      <y>0</y>
       <w>231</w>
       <h>275</h>
     </coordinates>
@@ -171,8 +171,8 @@ _name: varchar(100)_
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>715</x>
-      <y>462</y>
+      <x>561</x>
+      <y>264</y>
       <w>55</w>
       <h>198</h>
     </coordinates>

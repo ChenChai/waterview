@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand, CommandError
-from catalog.models import Course
+from catalog.models import Course, Term
 from django.db.utils import DataError, IntegrityError
 import requests
 import environ
@@ -24,17 +24,12 @@ class Command(BaseCommand):
             existingDict.setdefault(existing.subject, {})[existing.code] = True
     
         # First, get the list of all the academic terms.
-        # V3 API contains this list.
-        response = requests.get(f"https://openapi.data.uwaterloo.ca/v3/Terms",
-            headers={
-                'Accept':'application/json',
-                'x-api-key': env("OPENDATA_V3_KEY")})
         
-        terms = response.json()
+        terms = list(Term.objects.all())
         
         # Loop through each term looking for courses that don't exist yet.
         for term in terms:
-            termCode = term['code']
+            termCode = term.code
             print("Term: " + termCode)
             
             key = env("OPENDATA_V2_KEY")
