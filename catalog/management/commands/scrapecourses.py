@@ -12,52 +12,60 @@ class Command(BaseCommand):
     help = "updates course list in database from API"
     
     def handle(self, *args, **kwargs):
+        newCourses = 0
+
+        # First, get the list of all the academic terms.
+        # V3 API contains this list.
+        response = requests.get(f"https://openapi.data.uwaterloo.ca/v3/Terms",
+            headers={
+                'Accept':'application/json',
+                'x-api-key': env("OPENDATA_V3_KEY")})
         
-        term = 1201
-        key = env("OPENDATA_V2_KEY")
-        
-        # API call to get courses for this term.
-        response = requests.get(
-            f"https://api.uwaterloo.ca/v2/terms/{term}/courses.json?key={key}")
-        
-        
-        courses = response.json()['data']
-        
-        # Get existing courses as an in-memory dictionary 
-        # for fast comparisons
-        existingCourses = list(Course.objects.all())
-        existingDict = {}
-        
-        # https://stackoverflow.com/questions/8550912/dictionary-of-dictionaries-in-python
-        for existing in existingCourses:
-            existingDict.setdefault(existing.subject, {})[existing.code] = True
-        
-        
-        #print(existingDict)
-        
-        for course in courses:
-            s = course['subject']
-            c = str(course['catalog_number'])
-            print("Course found: " + course['subject'] + course['catalog_number'])
+        terms = response.json()
+        for term in terms:
+            termCode = term['code']
+            print("Term: " + termCode)
             
-            # Check if a course already exists in database;
-            # if not, insert it into the database.
-            if existingDict.get(s, {}).get(c, False) == True:
-                print("Course already exists; skipping insert.")
-            else:
-                print("Course does not yet exist; inserting.")
-                try:
-                    record = Course(subject=s, code=c)
-                    record.save()
+            key = env("OPENDATA_V2_KEY")
 
+            # API call to get courses for this term.
+            response = requests.get(
+                f"https://api.uwaterloo.ca/v2/terms/{termCode}/courses.json?key={key}")
+            
+            courses = response.json()['data']
+            
+            # Update existing courses as an in-memory dictionary 
+            # for fast comparisons
+            existingCourses = list(Course.objects.all())
+            existingDict = {}
 
-                except IntegrityError as e:
-                    # Can happen with duplicate entries
-                    print("Error inserting course: " + str(e))
+            # https://stackoverflow.com/questions/8550912/dictionary-of-dictionaries-in-python
+            for existing in existingCourses:
+                existingDict.setdefault(existing.subject, {})[existing.code] = True
+        
+            for course in courses:
+                s = course['subject']
+                c = str(course['catalog_number'])
+
                 
-                except DataError as e:
-                    # error inserting into database
-                    print("Error inserting course: " + str(e))
+                # Check if a course already exists in database;
+                # if not, insert it into the database.
+                if existingDict.get(s, {}).get(c, False) == True:
+                    ""
+                    # print("Course already exists; skipping insert.")
+                else:
+                    print("Course found: " + s + " " + c)
+                    try:
+                        record = Course(subject=s, code=c)
+                        record.save()
+                        
+                        newCourses += 1
 
-        print("Done!")
+                    except IntegrityError as e:
+                        print("Error inserting course: " + str(e))
+                    
+                    except DataError as e:
+                        print("Error inserting course: " + str(e))
+        
+        print("Done! Found " + str(newCourses) + " new courses (searched " + str(len(terms)) + " terms)")
     
