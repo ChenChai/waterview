@@ -103,7 +103,6 @@ class ClassOffering(models.Model):
     def __str__(self):
         return str(self.courseOffering) + ' ' + str(self.classNum)
 
-    
 class Instructor(models.Model):
     """Model representing an instructor. At the moment, 
     instructors are unique by name, since we don't have access

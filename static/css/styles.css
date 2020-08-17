@@ -1,0 +1,50 @@
+body {
+	display: flex;
+	flex-flow: column wrap;
+	
+	padding: 0px;
+	margin: 0px;
+	min-height: 100vh;
+	min-width: 100vh;
+}
+
+.navbar {
+	display: flex;
+	flex-flow: row wrap;
+	
+	justify-content: flex-end;
+	align-items: stretch;
+	align-content: stretch;
+	
+	background: black;
+	
+	width: 100%;
+}
+
+.navbar a {
+	display: block;
+	padding: 5px;
+	
+	text-decoration: none;
+	color: white;
+}
+
+.navbar a:hover {
+	display: block;
+	background: grey;
+}
+
+.navbar a:first-child {
+	margin-right: auto;
+	flex-grow: 0;
+}
+
+.main_content {
+	display: flex;
+	flex-flow: column nowrap;
+	flex-grow: 1;
+
+	background: #111111;
+	color: white;
+	padding: 30px;
+}
