@@ -1,19 +1,31 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <diagram program="umlet" version="14.3.0">
-  <zoom_level>15</zoom_level>
+  <zoom_level>11</zoom_level>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>885</x>
-      <y>285</y>
-      <w>315</w>
-      <h>375</h>
+      <x>605</x>
+      <y>638</y>
+      <w>231</w>
+      <h>275</h>
     </coordinates>
-    <panel_attributes>course_offering
+    <panel_attributes>CourseOffering
 --
-_term: int_
-
-(foreign key of course)
+_term: Term_
+_course: Course_
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>209</x>
+      <y>649</y>
+      <w>231</w>
+      <h>275</h>
+    </coordinates>
+    <panel_attributes>Course
+--
 _subject: varchar(10)_
 _code: varchar(10)_</panel_attributes>
     <additional_attributes/>
@@ -21,38 +33,12 @@ _code: varchar(10)_</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>465</x>
-      <y>285</y>
-      <w>315</w>
-      <h>375</h>
+      <x>1001</x>
+      <y>638</y>
+      <w>308</w>
+      <h>440</h>
     </coordinates>
-    <panel_attributes>course
---
-list of all course offerings?
-_subject: varchar(10)_
-_code: varchar(10)_</panel_attributes>
-    <additional_attributes/>
-  </element>
-  <element>
-    <id>Relation</id>
-    <coordinates>
-      <x>765</x>
-      <y>345</y>
-      <w>150</w>
-      <h>45</h>
-    </coordinates>
-    <panel_attributes>lt=&lt;-</panel_attributes>
-    <additional_attributes>10.0;10.0;80.0;10.0</additional_attributes>
-  </element>
-  <element>
-    <id>UMLClass</id>
-    <coordinates>
-      <x>1320</x>
-      <y>285</y>
-      <w>420</w>
-      <h>600</h>
-    </coordinates>
-    <panel_attributes>class
+    <panel_attributes>ClassOffering
 --
 _class_num: int_
 
@@ -62,31 +48,18 @@ enrollment_capacity: int
 enrollment_total: int
 
 (foreign key of course_offering)
-_term: int_
-_subject: varchar(10)_
-_code: int_</panel_attributes>
+_courseOffering: CourseOffering_</panel_attributes>
     <additional_attributes/>
-  </element>
-  <element>
-    <id>Relation</id>
-    <coordinates>
-      <x>1185</x>
-      <y>345</y>
-      <w>165</w>
-      <h>45</h>
-    </coordinates>
-    <panel_attributes>lt=&lt;-</panel_attributes>
-    <additional_attributes>10.0;10.0;90.0;10.0</additional_attributes>
   </element>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>1815</x>
-      <y>285</y>
-      <w>465</w>
-      <h>360</h>
+      <x>1507</x>
+      <y>638</y>
+      <w>341</w>
+      <h>264</h>
     </coordinates>
-    <panel_attributes>reserve
+    <panel_attributes>Reserve
 --
 (Not part of ADM data, auto incremented)
 _id: INT_
@@ -94,33 +67,18 @@ _id: INT_
 enrollment_capacity: int
 enrollment_total: int
 
-(foreign key of class)
-_class_num: int_
-_term: int_
-_subject: varchar(10)_
-_code: int_</panel_attributes>
+_classOffering: ClassOffering_</panel_attributes>
     <additional_attributes/>
-  </element>
-  <element>
-    <id>Relation</id>
-    <coordinates>
-      <x>1725</x>
-      <y>345</y>
-      <w>120</w>
-      <h>45</h>
-    </coordinates>
-    <panel_attributes>lt=&lt;-</panel_attributes>
-    <additional_attributes>10.0;10.0;60.0;10.0</additional_attributes>
   </element>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>1290</x>
-      <y>975</y>
-      <w>495</w>
-      <h>675</h>
+      <x>979</x>
+      <y>1221</y>
+      <w>363</w>
+      <h>495</h>
     </coordinates>
-    <panel_attributes>class_location
+    <panel_attributes>ClassLocation
 --
 (Not part of ADM data, auto incremented)
 _id: INT_
@@ -143,21 +101,83 @@ end_time: varchar(10)
 is_cancelled: bool
 
 (foreign key of class)
-_class_num: int_
-_term: int_
-_subject: varchar(10)_
-_code: int_</panel_attributes>
+_classOffering: ClassOffering_
+</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>1515</x>
-      <y>870</y>
-      <w>45</w>
-      <h>135</h>
+      <x>429</x>
+      <y>770</y>
+      <w>198</w>
+      <h>44</h>
     </coordinates>
-    <panel_attributes>lt=&lt;..</panel_attributes>
-    <additional_attributes>10.0;10.0;10.0;70.0</additional_attributes>
+    <panel_attributes>m1=1
+m2=0..*</panel_attributes>
+    <additional_attributes>10.0;10.0;160.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1144</x>
+      <y>1067</y>
+      <w>55</w>
+      <h>176</h>
+    </coordinates>
+    <panel_attributes>m1=1
+m2=0..*</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;140.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1298</x>
+      <y>770</y>
+      <w>231</w>
+      <h>44</h>
+    </coordinates>
+    <panel_attributes>m1=1
+m2=0..*</panel_attributes>
+    <additional_attributes>10.0;10.0;190.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>825</x>
+      <y>748</y>
+      <w>198</w>
+      <h>44</h>
+    </coordinates>
+    <panel_attributes>m1=1
+m2=0..*</panel_attributes>
+    <additional_attributes>10.0;10.0;160.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>605</x>
+      <y>198</y>
+      <w>231</w>
+      <h>275</h>
+    </coordinates>
+    <panel_attributes>Term
+--
+_code: varchar(10)_
+_name: varchar(100)_
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>715</x>
+      <y>462</y>
+      <w>55</w>
+      <h>198</h>
+    </coordinates>
+    <panel_attributes>m1=0..*
+m2=1</panel_attributes>
+    <additional_attributes>10.0;160.0;10.0;10.0</additional_attributes>
   </element>
 </diagram>
