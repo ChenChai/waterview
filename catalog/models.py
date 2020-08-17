@@ -60,9 +60,6 @@ class CourseOffering(models.Model):
     # i.e. Algebra for Honours Mathematics
     name = models.CharField(max_length=100)
     
-    # i.e. undergraduate, graduate
-    academicLevel = models.CharField(max_length=20)
-    
     class Meta:
         unique_together = (('course', 'term'),)
         
