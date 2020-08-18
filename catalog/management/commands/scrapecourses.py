@@ -38,7 +38,7 @@ class Command(BaseCommand):
         print("Beginning Scraping!")
         
         # Attempts to insert a course if it doesn't exist yet.
-        def insertCourse(course, termCode):
+        def insertCourse(course):
             s = Subject.objects.get(code=course['subject'])
             c = str(course['catalog_number'])
 
@@ -101,7 +101,7 @@ class Command(BaseCommand):
             courses = response.json()['data']
             
             for course in courses:
-                insertCourse(course, termCode)
+                insertCourse(course)
                 insertCourseOffering(course, termCode)
 
 
