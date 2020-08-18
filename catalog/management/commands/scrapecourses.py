@@ -24,6 +24,8 @@ class Command(BaseCommand):
         existingOfferings = list(CourseOffering.objects.all())
         existingOfferingsDict = {}
         
+        
+        
         # https://stackoverflow.com/questions/8550912/dictionary-of-dictionaries-in-python
         for existing in existingCourses:
             existingCourseDict.setdefault(existing.subject, {})[existing.code] = True

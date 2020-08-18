@@ -18,13 +18,19 @@ def homepage(request):
     }
     
     return render(request, 'homepage.html', context=context)
+
+def courses(request):
+    """View function for course list"""
     
-class CourseListView(generic.ListView):
-    """Generic view that will query database
-        automatically. to get data on courses and
-        display it."""
-        
-    model = Course
+    # select_related reduces number of queries to just one,
+    # doing a join on subject field.
+    courseList = list(Course.objects.all().select_related("subject"))
+    
+    context = {
+       'course_list': courseList,
+    }
+    
+    return render(request, 'catalog/course_list.html', context=context)
     
 class InstructorListView(generic.ListView):
     """Generic view that will query database
