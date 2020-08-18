@@ -12,8 +12,8 @@ class Command(BaseCommand):
     help = "updates course list in database from API"
     
     def handle(self, *args, **kwargs):
-        newCourses = 0
-        newCourseOfferings = 0
+        new = { 'courses': 0, 'offerings': 0 }
+
         key = env("OPENDATA_V2_KEY")
         
         print("Setting up....")
@@ -57,7 +57,7 @@ class Command(BaseCommand):
                     # Also update existing courses dictionary with new course.
                     existingCourseDict.setdefault(s, {})[c] = True
                     
-                    newCourses += 1
+                    new['courses'] += 1
                 
                 except IntegrityError as e:
                     print("Error inserting course: " + str(e))
@@ -87,7 +87,7 @@ class Command(BaseCommand):
                     # Also update existing courses dictionary with new offering.
                     existingOfferingsDict.setdefault(str(courseModel), {})[termCode] = True
                     
-                    newCourseOfferings += 1
+                    new['offerings'] += 1
 
                 except Exception as e:
                     print("Error inserting course offering: " + str(e))
@@ -123,4 +123,4 @@ class Command(BaseCommand):
             for course in courses:
                 insertCourse(course)
 
-        print("Done! Found " + str(newCourses) + " new courses and " + str(newCourseOfferings) + " new course offerings.")
+        print("Done! Found " + str(new['courses']) + " new courses and " + str(new['offerings']) + " new course offerings.")
