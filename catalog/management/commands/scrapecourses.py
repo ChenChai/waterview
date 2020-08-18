@@ -104,6 +104,7 @@ class Command(BaseCommand):
                 insertCourse(course, termCode)
                 insertCourseOffering(course, termCode)
 
+
         # Also look through courses returned by API itself.
         # API call to get courses for this term.
         for subject in subjects:
