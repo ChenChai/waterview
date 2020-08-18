@@ -14,40 +14,47 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         newCourses = 0
         key = env("OPENDATA_V2_KEY")
-    
+        
+        print("Setting up....")
+        
         # Create existing courses as an in-memory dictionary 
         # for fast comparisons
         existingCourses = list(Course.objects.all())
-        existingDict = {}
-
+        existingCourseDict = {}
+        existingOfferings = list(CourseOffering.objects.all())
+        existingOfferingsDict = {}
+        
         # https://stackoverflow.com/questions/8550912/dictionary-of-dictionaries-in-python
         for existing in existingCourses:
-            existingDict.setdefault(existing.subject, {})[existing.code] = True
+            existingCourseDict.setdefault(existing.subject, {})[existing.code] = True
         
+        for existing in existingOfferings:
+            existingOfferingsDict.setdefault(str(existing.course), {})[existing.term.code] = True
         
         # First, get the list of all the academic terms and subjects.
         terms = list(Term.objects.all())
         subjects = list(Subject.objects.all())
-
+        
+        print("Beginning Scraping!")
         
         # Attempts to insert a course if it doesn't exist yet.
-        def insertCourse(course):
+        def insertCourse(course, termCode):
             s = Subject.objects.get(code=course['subject'])
             c = str(course['catalog_number'])
 
             # Check if a course already exists in database;
             # if not, insert it into the database.
-            if existingDict.get(s, {}).get(c, False) == True:
+            if existingCourseDict.get(s, {}).get(c, False) == True:
                 ""
-                # print("Course already exists; skipping insert.")
+                #print("COURSE already exists; skipping insert.")
             else:
-                print("Course found: " + str(s) + " " + c)
+                print("COURSE found: " + str(s) + " " + c)
                 try:
-                    record = Course(subject=s, code=c)
-                    record.save()
+                    courseModel = Course(subject=s, code=c)
+                    courseModel.save()
                     
                     # Also update existing courses dictionary with new course.
-                    existingDict.setdefault(s, {})[c] = True
+                    existingCourseDict.setdefault(s, {})[c] = True
                     
                     #newCourses += 1
                 
@@ -56,9 +63,32 @@ class Command(BaseCommand):
                 
                 except DataError as e:
                     print("Error inserting course: " + str(e))
+            
         
+        def insertCourseOffering(course, termCode):
+            s = Subject.objects.get(code=course['subject'])
+            c = str(course['catalog_number'])
+            courseName = str(course['title'])
+            courseModel = Course.objects.get(subject=s, code=c)
 
-        
+            # Try to insert a course offering as well.
+            if existingOfferingsDict.get(str(courseModel), {}).get(str(termCode), False) == True:
+                ""
+                print("Course Offering already exists; skipping insert:"  + str(courseModel) + " " + str(termCode) + "(" + courseName + ")")
+            else:
+                print("Course Offering found: " + str(courseModel) + " " + str(termCode) + "(" + courseName + ")")
+                try:
+                    termModel = Term.objects.get(code=termCode)
+                    
+                    record = CourseOffering(course=courseModel, term=termModel, name=courseName)
+                    record.save()
+                    
+                    # Also update existing courses dictionary with new offering.
+                    existingOfferingsDict.setdefault(str(courseModel), {})[termCode] = True
+                                    
+                except Exception as e:
+                    print("Error inserting course offering: " + str(e))
+
         # Loop through each term looking for courses that don't exist yet.
         for term in terms:
             termCode = term.code
@@ -71,13 +101,11 @@ class Command(BaseCommand):
             courses = response.json()['data']
             
             for course in courses:
-                insertCourse(course)
-        
-        
+                insertCourse(course, termCode)
+                insertCourseOffering(course, termCode)
+
         # Also look through courses returned by API itself.
         # API call to get courses for this term.
-
-        
         for subject in subjects:
             subjectCode = subject.code
             print("Subject: " + subjectCode)
@@ -91,6 +119,4 @@ class Command(BaseCommand):
             for course in courses:
                 insertCourse(course)
 
-        
         print("Done! Found " + str(newCourses) + " new courses (searched " + str(len(terms)) + " terms)")
-    

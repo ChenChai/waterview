@@ -46,7 +46,7 @@ class Course(models.Model):
         
     def __str__(self):
         """String representation of Course"""
-        return self.subject + ' ' + self.code
+        return str(self.subject) + ' ' + str(self.code)
     
 class CourseOffering(models.Model):
     """Model representing an offering of a course in a given term."""
