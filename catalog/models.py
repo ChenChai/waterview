@@ -69,7 +69,7 @@ class CourseOffering(models.Model):
         ordering = ['course', 'term']
         
     def __str__(self):
-        return str(self.subject) + ' ' + str(self.term)
+        return str(self.course) + ' ' + str(self.term)
 
 class ClassOffering(models.Model):
     """Model representing one class of a course offering."""
@@ -91,9 +91,9 @@ class ClassOffering(models.Model):
     campus = models.CharField(max_length=10)
     
     # Administrative values for enrollment
-    associatedClass: models.CharField(max_length=10)
-    relComp1: models.CharField(max_length=10, null=True)
-    relComp2: models.CharField(max_length=10, null=True)
+    associatedClass = models.CharField(max_length=10)
+    relComp1 = models.CharField(max_length=10, null=True)
+    relComp2 = models.CharField(max_length=10, null=True)
     
     # Maximum number of students that can 
     # enroll in the class
