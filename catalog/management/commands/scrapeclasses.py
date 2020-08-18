@@ -32,14 +32,14 @@ class Command(BaseCommand):
         
         def addClass(classOffering, termCode):
             try:
-                # Find CourseOffering model
+                # Find existing models
                 termModel = Term.objects.get(code=termCode)
                 subjectModel = Subject.objects.get(code=classOffering['subject'])
                 courseModel = Course.objects.get(subject=subjectModel, code=classOffering['catalog_number'])
-                
                 courseOfferingModel = CourseOffering.objects.get(
                     term=termModel, course=courseModel)
 
+                # Insert new class.
                 classRecord = ClassOffering(
                     classNum=classOffering['class_number'],
                     courseOffering=courseOfferingModel,
@@ -54,6 +54,21 @@ class Command(BaseCommand):
                 )
                 print("Adding class: " + str(classRecord))
                 classRecord.save()
+                
+                
+                # If a duplicate is inserted, will error out here...
+                
+                # Delete existing Reserve and ClassLocation objects associated with this class.
+                ClassLocation.objects.filter(classOffering=classRecord).delete()
+                
+                ClassReserve.objects.filter(classOffering=classRecord).delete()
+                
+                
+                
+                
+                
+                
+                
             
             except Exception as e:
                     print("Error inserting class offering: " + str(e))

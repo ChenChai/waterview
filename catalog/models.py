@@ -165,3 +165,20 @@ class ClassLocation(models.Model):
 
     
 
+
+
+class ClassReserve(models.Model):
+    """Model representing a reserve section in a class"""
+    
+    classOffering = models.ForeignKey('ClassOffering', on_delete=models.RESTRICT)
+    
+    # People the reserve is for
+    reserveGroup = models.CharField(max_length=100)
+    
+    enrollmentCapacity = models.IntegerField()
+    enrollmentTotal = models.IntegerField()
+    
+    def __str__(self):
+        return str(self.classOffering) + ' ' + str(reserveGroup)
+    
+    
