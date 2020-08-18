@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand, CommandError
-from catalog.models import Course, CourseOffering, Term, Subject, ClassOffering
+from catalog.models import *
 from django.db.utils import DataError, IntegrityError
 from django.db import connection, transaction
 
@@ -29,7 +29,6 @@ class Command(BaseCommand):
         
         result = cursor.fetchall()
         
-        
         def addClass(classOffering, termCode):
             try:
                 # Find existing models
@@ -50,39 +49,89 @@ class Command(BaseCommand):
                     relComp1=str(classOffering['related_component_1']),
                     relComp2=str(classOffering['related_component_2']),
                     enrollmentCapacity=classOffering['enrollment_capacity'],
-                    enrollmentTotal=classOffering['enrollment_total']
+                    enrollmentTotal=classOffering['enrollment_total'],
                 )
-                print("Adding class: " + str(classRecord))
-                classRecord.save()
                 
+                print("    Adding class: " + str(classRecord))
+                classRecord.save()
                 
                 # If a duplicate is inserted, will error out here...
                 
                 # Delete existing Reserve and ClassLocation objects associated with this class.
                 ClassLocation.objects.filter(classOffering=classRecord).delete()
-                
                 ClassReserve.objects.filter(classOffering=classRecord).delete()
                 
+                for reserve in classOffering['reserves']:
+                    try:
+                        reserveRecord = ClassReserve(
+                            classOffering=classRecord,
+                            reserveGroup=reserve['reserve_group'],
+                            enrollmentCapacity=reserve['enrollment_capacity'],
+                            enrollmentTotal=reserve['enrollment_total'],
+                        )
+                        
+                        print("        Adding reserve: " + str(reserveRecord) + " for " + str(reserveRecord.reserveGroup))
+                        reserveRecord.save()
+                        
+                    except Exception as e:
+                        print("        Error inserting reserve: " + str(e))
+
                 
-                
-                
-                
-                
-                
-            
+                for classLocation in classOffering['classes']:
+                    
+                    instructors = []
+                    
+                    for instructor in classLocation['instructors']:
+                        try:
+                            fullName = instructor.split(',', 1)
+                            instructorRecord = Instructor(
+                                firstName=fullName[0],
+                                lastName=fullName[1],
+                            )
+                            print("        Adding Instructor: " + str(fullName))
+
+                            instructorRecord.save()
+                            
+                            instructors.append(instructorRecord)
+                        except Exception as e:
+                            print("        Error inserting instructor: " + str(e))
+                    
+                    try:
+                        locationRecord = ClassLocation(
+                            classOffering=classRecord,
+                            startDate=classLocation['date']['start_date'],
+                            endDate=classLocation['date']['end_date'],
+                            startTime=classLocation['date']['start_time'],
+                            endTime=classLocation['date']['end_time'],
+                            weekdays=classLocation['date']['weekdays'],
+                            building=classLocation['location']['building'],
+                            room=classLocation['location']['room'],
+                            isCancelled=classLocation['date']['is_cancelled'],
+                            isClosed=classLocation['date']['is_closed'],
+                            isTBA=classLocation['date']['is_tba'],
+                        )
+                        
+                        print("        Adding ClassLocation: " + str(locationRecord))
+                        locationRecord.save()
+                        
+                        for instructorRecord in instructors:
+                            locationRecord.instructors.add(instructorRecord)
+                        
+                    except Exception as e:
+                            print("        Error inserting ClassLocation: " + str(e))
+
             except Exception as e:
-                    print("Error inserting class offering: " + str(e))
+                    print("    Error adding class: " + str(e))
 
         
         for row in result:
             termCode = row[0]
             subjectCode = row[1]
-            print(str(row))
+            print("Searching Term/Subject" + str(row))
             
             # API call to get classes for this term.
             response = requests.get(
                 f"https://api.uwaterloo.ca/v2/terms/{termCode}/{subjectCode}/schedule.json?key={key}")
-            print("Got response: " + str(response))
             
             classes = response.json()['data']
             

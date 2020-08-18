@@ -31,7 +31,7 @@ class Term(models.Model):
 class Course(models.Model):
     """Model representing a course at UWaterloo"""
     
-    subject = models.ForeignKey('Subject', on_delete=models.RESTRICT)
+    subject = models.ForeignKey('Subject', on_delete=models.CASCADE)
     
     # ~3-4 digits normally
     code = models.CharField(max_length=10, help_text="Numbers/characters after subject for the course")
@@ -52,10 +52,9 @@ class CourseOffering(models.Model):
     """Model representing an offering of a course in a given term."""
     
     # Course and term are both foreign keys.
-    # Use RESTRICT to prevent courses and terms from being
-    # deleted from foreign tables while this exists.
-    course = models.ForeignKey('Course', on_delete=models.RESTRICT)
-    term = models.ForeignKey('Term', on_delete=models.RESTRICT)
+    # Use CASCADE to delete referencing rows on delete.
+    course = models.ForeignKey('Course', on_delete=models.CASCADE)
+    term = models.ForeignKey('Term', on_delete=models.CASCADE)
     
     # i.e. Algebra for Honours Mathematics
     name = models.CharField(max_length=100)
@@ -79,7 +78,7 @@ class ClassOffering(models.Model):
     classNum = models.CharField(max_length=10)
     
     # Course offering instance this class is offered under
-    courseOffering = models.ForeignKey('CourseOffering', on_delete=models.RESTRICT)
+    courseOffering = models.ForeignKey('CourseOffering', on_delete=models.CASCADE)
     
     # i.e. 'LEC 010'
     sectionName = models.CharField(max_length=10)
@@ -135,7 +134,7 @@ class ClassLocation(models.Model):
         of the authoritative data source as closely as possible
         in case the duplication is relevant in some instances."""
     
-    classOffering = models.ForeignKey('ClassOffering', on_delete=models.RESTRICT)
+    classOffering = models.ForeignKey('ClassOffering', on_delete=models.CASCADE)
     
     # If startDate == endDate, this is probably a 'fake'
     # section we sometimes see in the data. Not sure
@@ -155,6 +154,10 @@ class ClassLocation(models.Model):
     # potential for multiple instructors?
     instructor = models.ManyToManyField(Instructor)
     
+    isCancelled = models.BooleanField()
+    isClosed = models.BooleanField()
+    isTBA = models.BooleanField()
+    
     class Meta:
         # Order by startDate since most 'real' class times are null
         ordering = ['startDate']
@@ -162,15 +165,10 @@ class ClassLocation(models.Model):
     def __str__(self):
         return str(self.classOffering)
 
-
-    
-
-
-
 class ClassReserve(models.Model):
     """Model representing a reserve section in a class"""
     
-    classOffering = models.ForeignKey('ClassOffering', on_delete=models.RESTRICT)
+    classOffering = models.ForeignKey('ClassOffering', on_delete=models.CASCADE)
     
     # People the reserve is for
     reserveGroup = models.CharField(max_length=100)
