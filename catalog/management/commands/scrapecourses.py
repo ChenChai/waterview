@@ -13,18 +13,17 @@ class Command(BaseCommand):
     
     def handle(self, *args, **kwargs):
         newCourses = 0
+        newCourseOfferings = 0
         key = env("OPENDATA_V2_KEY")
         
         print("Setting up....")
         
         # Create existing courses as an in-memory dictionary 
         # for fast comparisons
-        existingCourses = list(Course.objects.all())
+        existingCourses = list(Course.objects.all().select_related('subject'))
         existingCourseDict = {}
-        existingOfferings = list(CourseOffering.objects.all())
+        existingOfferings = list(CourseOffering.objects.all().select_related('course').select_related('course__subject').select_related('term'))
         existingOfferingsDict = {}
-        
-        
         
         # https://stackoverflow.com/questions/8550912/dictionary-of-dictionaries-in-python
         for existing in existingCourses:
@@ -58,7 +57,7 @@ class Command(BaseCommand):
                     # Also update existing courses dictionary with new course.
                     existingCourseDict.setdefault(s, {})[c] = True
                     
-                    #newCourses += 1
+                    newCourses += 1
                 
                 except IntegrityError as e:
                     print("Error inserting course: " + str(e))
@@ -87,7 +86,9 @@ class Command(BaseCommand):
                     
                     # Also update existing courses dictionary with new offering.
                     existingOfferingsDict.setdefault(str(courseModel), {})[termCode] = True
-                                    
+                    
+                    newCourseOfferings += 1
+
                 except Exception as e:
                     print("Error inserting course offering: " + str(e))
 
@@ -122,4 +123,4 @@ class Command(BaseCommand):
             for course in courses:
                 insertCourse(course)
 
-        print("Done! Found " + str(newCourses) + " new courses (searched " + str(len(terms)) + " terms)")
+        print("Done! Found " + str(newCourses) + " new courses and " + str(newCourseOfferings) + " new course offerings.")
