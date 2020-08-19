@@ -71,14 +71,14 @@ class Command(BaseCommand):
                 classRecord = ClassOffering(
                     classNum=classNum,
                     courseOffering=courseOfferingModel,
-                    sectionName=classOffering['section'],
-                    topic=classOffering['topic'],
-                    campus=classOffering['campus'],
-                    associatedClass=str(classOffering['associated_class']),
-                    relComp1=str(classOffering['related_component_1']),
-                    relComp2=str(classOffering['related_component_2']),
-                    enrollmentCapacity=classOffering['enrollment_capacity'],
-                    enrollmentTotal=classOffering['enrollment_total'],
+                    sectionName=classOffering.get('section'),
+                    topic=classOffering.get('topic'),
+                    campus=classOffering.get('campus'),
+                    associatedClass=str(classOffering.get('associated_class')),
+                    relComp1=str(classOffering.get('related_component_1')),
+                    relComp2=str(classOffering.get('related_component_2')),
+                    enrollmentCapacity=classOffering.get('enrollment_capacity'),
+                    enrollmentTotal=classOffering.get('enrollment_total'),
                 )
                 
                 print("    Adding class: " + str(classRecord))
@@ -92,13 +92,13 @@ class Command(BaseCommand):
             ClassReserve.objects.filter(classOffering=classRecord).delete()
             
             for reserve in classOffering['reserves']:
-                print("        Adding reserve for " + str(reserve['reserve_group']))
+                print("        Adding reserve for " + str(reserve.get('reserve_group')))
 
                 reserveRecord = ClassReserve(
                     classOffering=classRecord,
-                    reserveGroup=reserve['reserve_group'],
-                    enrollmentCapacity=reserve['enrollment_capacity'],
-                    enrollmentTotal=reserve['enrollment_total'],
+                    reserveGroup=reserve.get('reserve_group'),
+                    enrollmentCapacity=reserve.get('enrollment_capacity'),
+                    enrollmentTotal=reserve.get('enrollment_total'),
                 )
                 
                 reserveRecord.save()
@@ -128,17 +128,17 @@ class Command(BaseCommand):
                         instructors.append(instructorRecord)
                         
                 locationRecord = ClassLocation(
-                    classOffering=classRecord,
-                    startDate=classLocation['date']['start_date'],
-                    endDate=classLocation['date']['end_date'],
-                    startTime=classLocation['date']['start_time'],
-                    endTime=classLocation['date']['end_time'],
-                    weekdays=classLocation['date']['weekdays'],
-                    building=classLocation['location']['building'],
-                    room=classLocation['location']['room'],
-                    isCancelled=classLocation['date']['is_cancelled'],
-                    isClosed=classLocation['date']['is_closed'],
-                    isTBA=classLocation['date']['is_tba'],
+                    classOffering =classRecord,
+                    startDate     = classLocation.get('date', {}).get('start_date'),
+                    endDate       = classLocation.get('date', {}).get('end_date'  ),
+                    startTime     = classLocation.get('date', {}).get('start_time'),
+                    endTime       = classLocation.get('date', {}).get('end_time'  ),
+                    weekdays      = classLocation.get('date', {}).get('weekdays'  ),
+                    building      = classLocation.get('location', {}).get('building'),
+                    room          = classLocation.get('location', {}).get('room'),
+                    isCancelled   = classLocation.get('date', {}).get('is_cancelled'),
+                    isClosed      = classLocation.get('date', {}).get('is_closed'),
+                    isTBA         = classLocation.get('date', {}).get('is_tba'),
                 )
                 
                 print("        Adding ClassLocation: " + str(locationRecord))

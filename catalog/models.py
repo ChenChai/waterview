@@ -174,8 +174,8 @@ class ClassReserve(models.Model):
     # People the reserve is for
     reserveGroup = models.CharField(max_length=100)
     
-    enrollmentCapacity = models.IntegerField()
-    enrollmentTotal = models.IntegerField()
+    enrollmentCapacity = models.IntegerField(null=True)
+    enrollmentTotal = models.IntegerField(null=True)
     
     def __str__(self):
         return str(self.classOffering) + ' ' + str(reserveGroup)
