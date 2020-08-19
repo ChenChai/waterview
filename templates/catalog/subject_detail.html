@@ -1,5 +1,17 @@
 {% extends "base_generic.html" %}
 
 {% block content %}
-<h1> {{ subject_code }} </h1> 
+
+{% if subject_name %}
+	<h1> {{ subject_code }} </h1>
+	<h3> {{ subject_name }} </h3>
+	
+	<ul>
+	{% for course in course_list %}
+		<li>{{ course.subject }} {{ course.code }}</li>
+	{% endfor %}
+	</ul>
+{% else %}
+	Subject with code '{{ subject_code }}' not found.
+{% endif %}
 {% endblock %}

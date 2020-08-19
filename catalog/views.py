@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from catalog.models import Term, Course, CourseOffering, Instructor
+from catalog.models import *
 from django.views import generic
 
 def homepage(request):
@@ -46,12 +46,24 @@ def subjectDetail(request, subject):
         
         newPath += subject.upper() + '/'
         return redirect(newPath)
-        
-        
-    context = {
-        'subject_code': subject,
-    }
     
+    
+    if Subject.objects.filter(code=subject).exists():
+    
+        model = Subject.objects.get(code=subject)
+        
+        courseList = list(Course.objects.filter(subject=model).select_related('subject'))
+        
+        context = {
+            'subject_code': subject,
+            'subject_name': model.name,
+            'course_list': courseList,
+        }
+        
+    else:
+        context = {
+            'subject_code': subject,
+        }
     
     
     return render(request, 'catalog/subject_detail.html', context=context)
