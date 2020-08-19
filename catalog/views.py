@@ -79,6 +79,7 @@ def courseDetail(request, subject, code):
             context = {
                 'subject_code': subject,
                 'catalog_code': code,
+                'course': model,
                 'exists': True,
             }
             
