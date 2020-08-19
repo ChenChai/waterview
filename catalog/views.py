@@ -75,12 +75,17 @@ def courseDetail(request, subject, code):
             # Redirect to all uppercase
             if subject.upper() != subject or code.upper() != code:
                 return redirect(model.getAbsoluteUrl())
-    
+                
             context = {
                 'subject_code': subject,
                 'catalog_code': code,
                 'exists': True,
             }
+            
+            if CourseOffering.objects.filter(course=model).exists():
+                context['offering_list'] = list(CourseOffering.objects.filter(course=model).select_related('term'))
+            
+
     
     return render(request, 'catalog/course_detail.html', context=context)
 
