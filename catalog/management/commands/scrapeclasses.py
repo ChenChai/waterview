@@ -85,7 +85,7 @@ class Command(BaseCommand):
                     print("    Adding class: " + str(classRecord))
                     classRecord.save()
                     
-                    existingClassesDict[subjectCode+courseCatalogNum+termCode][classNum] = True
+                    existingClassesDict.setdefault(subjectCode+courseCatalogNum+termCode, {})[classNum] = True
                                     
                 # Delete existing Reserve and ClassLocation objects associated with this class.
                 # We'll re-insert the data even if the class already exists.
