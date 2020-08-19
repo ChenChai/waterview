@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from catalog.models import Term, Course, CourseOffering, Instructor
 from django.views import generic
 
@@ -31,7 +31,36 @@ def courses(request):
     }
     
     return render(request, 'catalog/course_list.html', context=context)
+
+def subjectDetail(request, subject):
+    """View function for a subject (i.e. CS)"""
     
+    # Redirect to all uppercase subject
+    if subject.upper() != subject:
+        pathArray = request.path.split('/')
+        
+        # Replace last slug in path with uppercase version of slug
+        newPath = ''
+        for i in range(0, len(pathArray) - 2):
+            newPath += pathArray[i] + '/'
+        
+        newPath += subject.upper() + '/'
+        return redirect(newPath)
+        
+        
+    context = {
+        'subject_code': subject,
+    }
+    
+    
+    
+    return render(request, 'catalog/subject_detail.html', context=context)
+
+def courseDetail(request, subject, code):
+    """View function for a specific course (i.e. CS 241E)"""
+    
+    return courses(request)
+
 class InstructorListView(generic.ListView):
     """Generic view that will query database
         automatically. to get data on courses and
