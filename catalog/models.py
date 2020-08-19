@@ -14,6 +14,9 @@ class Subject(models.Model):
     
     def __str__(self):
         return str(self.code)
+    
+    def getAbsoluteUrl(self):
+        return reverse(views.courses) + str(self.code) + '/'
 
 class Term(models.Model):
     """Model representing an academic term at UWaterloo"""
@@ -183,8 +186,6 @@ class ClassReserve(models.Model):
     
     def __str__(self):
         return str(self.classOffering) + ' ' + str(reserveGroup)
-    
-    
     
 # import after functions: https://stackoverflow.com/questions/11698530/two-python-modules-require-each-others-contents-can-that-work
 from catalog import views

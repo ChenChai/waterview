@@ -2,10 +2,10 @@
 
 {% block content %}
 
-{% if subject_name %}
+{% if exists %}
 	<h1> {{ subject_code }} </h1>
 	<h3> {{ subject_name }} </h3>
-	
+
 	<ul>
 	{% for course in course_list %}
 		<li><a href="{{ course.getAbsoluteUrl }}">{{ course.subject }} {{ course.code }}</a></li>

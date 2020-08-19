@@ -1,0 +1,11 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+
+{% if exists %}
+	<h1> {{ subject_code }} {{ catalog_code }}</h1>
+	<h3> (Course name here) </h3>
+{% else %}
+	Course with code '{{ subject_code }} {{ catalog_code }}' not found.
+{% endif %}
+{% endblock %}
