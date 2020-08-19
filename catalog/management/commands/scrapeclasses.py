@@ -110,7 +110,11 @@ class Command(BaseCommand):
                 for instructor in classLocation['instructors']:
                     fullName = instructor.split(',', 1)
                     firstName = fullName[0]
-                    lastName = fullName[1]
+
+                    if len(fullName) >= 2:
+                        lastName = fullName[1]
+                    else:
+                        lastName = ""
                     
                     if existingInstructorsDict.get(firstName, {}).get(lastName, False) == True:
                         # instructor already exists.
