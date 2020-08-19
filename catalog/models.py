@@ -122,6 +122,7 @@ class Instructor(models.Model):
     lastName = models.CharField(max_length=100)
     
     class Meta:
+        unique_together = ['firstName', 'lastName']
         ordering = ['firstName', 'lastName']
     
     def __str__(self):

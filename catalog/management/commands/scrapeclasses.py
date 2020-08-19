@@ -18,6 +18,25 @@ class Command(BaseCommand):
         key = env("OPENDATA_V2_KEY")
         cursor = connection.cursor()
         
+        # Set up existing instructor and ClassOffering dictionaries.
+        
+        print("Building existing instructors dict")
+        existingInstructors = list(Instructor.objects.all())
+        existingInstructorsDict = {}
+        for existing in existingInstructors:
+            existingInstructorsDict[existing.firstName + existing.lastName] = True
+        print("Done!")
+
+        print("Building existing classes dict")
+        existingClasses = list(ClassOffering.objects.all().select_related('courseOffering','courseOffering__course','courseOffering__course__subject','courseOffering__term'))
+        existingClassesDict = {}
+        for existing in existingClasses:
+            existingClassesDict.setdefault(
+                str(existing.courseOffering.course.subject)
+                + existing.courseOffering.course.code 
+                + str(existing.courseOffering.term), {})[str(existing.classNum)] = True
+        print("Done!")
+
         # Get the combinations of which subjects were offered
         # in each term. 
         cursor.execute("""
@@ -30,39 +49,53 @@ class Command(BaseCommand):
         result = cursor.fetchall()
         
         def addClass(classOffering, termCode):
+        
+            subjectCode = classOffering['subject']
+            courseCatalogNum = classOffering['catalog_number']
+            classNum = classOffering['class_number']
+            
             try:
                 # Find existing models
                 termModel = Term.objects.get(code=termCode)
-                subjectModel = Subject.objects.get(code=classOffering['subject'])
-                courseModel = Course.objects.get(subject=subjectModel, code=classOffering['catalog_number'])
+                subjectModel = Subject.objects.get(code=subjectCode)
+                courseModel = Course.objects.get(subject=subjectModel, code=courseCatalogNum)
                 courseOfferingModel = CourseOffering.objects.get(
                     term=termModel, course=courseModel)
+                
+                if existingClassesDict.get(subjectCode+courseCatalogNum+termCode, {}).get(str(classNum), False) == True:
+                    # Already exists; skip insert.
+                    classRecord = ClassOffering.objects.get(classNum=classNum, courseOffering=courseOfferingModel)
+                    print("    Class exists; updating reserves/locations for: " + str(classRecord))
 
-                # Insert new class.
-                classRecord = ClassOffering(
-                    classNum=classOffering['class_number'],
-                    courseOffering=courseOfferingModel,
-                    sectionName=classOffering['section'],
-                    topic=classOffering['topic'],
-                    campus=classOffering['campus'],
-                    associatedClass=str(classOffering['associated_class']),
-                    relComp1=str(classOffering['related_component_1']),
-                    relComp2=str(classOffering['related_component_2']),
-                    enrollmentCapacity=classOffering['enrollment_capacity'],
-                    enrollmentTotal=classOffering['enrollment_total'],
-                )
-                
-                print("    Adding class: " + str(classRecord))
-                classRecord.save()
-                
-                # If a duplicate is inserted, will error out here...
-                
+                else: 
+                    # Insert new class.
+                    classRecord = ClassOffering(
+                        classNum=classNum,
+                        courseOffering=courseOfferingModel,
+                        sectionName=classOffering['section'],
+                        topic=classOffering['topic'],
+                        campus=classOffering['campus'],
+                        associatedClass=str(classOffering['associated_class']),
+                        relComp1=str(classOffering['related_component_1']),
+                        relComp2=str(classOffering['related_component_2']),
+                        enrollmentCapacity=classOffering['enrollment_capacity'],
+                        enrollmentTotal=classOffering['enrollment_total'],
+                    )
+                    
+                    print("    Adding class: " + str(classRecord))
+                    classRecord.save()
+                    
+                    existingClassesDict[subjectCode+courseCatalogNum+termCode][classNum] = True
+                                    
                 # Delete existing Reserve and ClassLocation objects associated with this class.
+                # We'll re-insert the data even if the class already exists.
                 ClassLocation.objects.filter(classOffering=classRecord).delete()
                 ClassReserve.objects.filter(classOffering=classRecord).delete()
                 
                 for reserve in classOffering['reserves']:
                     try:
+                        print("        Adding reserve for " + str(reserve['reserve_group']))
+
                         reserveRecord = ClassReserve(
                             classOffering=classRecord,
                             reserveGroup=reserve['reserve_group'],
@@ -70,31 +103,41 @@ class Command(BaseCommand):
                             enrollmentTotal=reserve['enrollment_total'],
                         )
                         
-                        print("        Adding reserve: " + str(reserveRecord) + " for " + str(reserveRecord.reserveGroup))
                         reserveRecord.save()
                         
                     except Exception as e:
                         print("        Error inserting reserve: " + str(e))
 
-                
+
                 for classLocation in classOffering['classes']:
                     
                     instructors = []
                     
+                    
+                    
                     for instructor in classLocation['instructors']:
-                        try:
-                            fullName = instructor.split(',', 1)
-                            instructorRecord = Instructor(
-                                firstName=fullName[0],
-                                lastName=fullName[1],
-                            )
-                            print("        Adding Instructor: " + str(fullName))
+                        fullName = instructor.split(',', 1)
+                        firstName = fullName[0]
+                        lastName = fullName[1]
+                        
+                        if existingInstructorsDict.get(firstName + lastName, False) == True:
+                            # instructor already exists.
+                            instructors.append(Instructor.objects.get(firstName=firstName, lastName=lastName))
+                        else:
+                            try:
+                                instructorRecord = Instructor(
+                                    firstName=firstName,
+                                    lastName=lastName,
+                                )
+                                print("        Adding Instructor: " + str(fullName))
 
-                            instructorRecord.save()
-                            
-                            instructors.append(instructorRecord)
-                        except Exception as e:
-                            print("        Error inserting instructor: " + str(e))
+                                instructorRecord.save()
+                                existingInstructorsDict[firstName+lastName] = True
+                                
+                                instructors.append(instructorRecord)
+                                
+                            except Exception as e:
+                                print("        Error inserting instructor: " + str(e))
                     
                     try:
                         locationRecord = ClassLocation(
@@ -115,12 +158,12 @@ class Command(BaseCommand):
                         locationRecord.save()
                         
                         for instructorRecord in instructors:
-                            locationRecord.instructors.add(instructorRecord)
+                            locationRecord.instructor.add(instructorRecord)
                         
                     except Exception as e:
                             print("        Error inserting ClassLocation: " + str(e))
 
-            except Exception as e:
+            except IntegrityError as e:
                     print("    Error adding class: " + str(e))
 
         
@@ -139,7 +182,4 @@ class Command(BaseCommand):
             for classOffering in classes:
                 addClass(classOffering, termCode)
             
-        print(str(len(result)) + " term/subject combinations")
-            
-            
-            
+        print("Done!")
