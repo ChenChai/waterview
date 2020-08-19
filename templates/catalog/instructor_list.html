@@ -1,9 +1,13 @@
-{% extends "base_generic.html" %}
+{% extends "filter_generic.html" %}
 
-{% block content %} 
+{% block pre_filter %} 
 <h1>instructors.</h1>
+{% endblock %}
+
+{% block filter_hint %}Filter instructors.{% endblock %}
+{% block post_filter %} 
 {% if instructor_list %}
-<ul>
+<ul id="filterList">
 	{% for instructor in instructor_list %}
 		<li>{{ instructor.firstName }} {{ instructor.lastName }}</li>
 	{% endfor %}
