@@ -51,6 +51,12 @@ body {
 	padding: 30px;
 }
 
+.footer {
+	color: white;
+	background: black;
+	padding: 3px;
+	font-size: 12px;
+}
 
 input {
 	padding: 10px;
