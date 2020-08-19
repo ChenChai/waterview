@@ -1,76 +1,19 @@
-{% extends "base_generic.html" %}
+{% extends "filter_generic.html" %}
 
-{% block content %} 
+{% block pre_filter %} 
 <h1>courses.</h1>
+{% endblock %}
+
+{% block filter_hint %}Filter courses.{% endblock %} 
+
+{% block post_filter %} 
 {% if course_list %}
-
-<input type="text" id="searchBar" onkeyup="filterCourses()" placeholder="Filter courses.">
-
-<ul id="courseList">
+<ul id="filterList">
 	{% for course in course_list %}
 		<li><a href="{{ course.getAbsoluteUrl }}">{{ course.subject }} {{ course.code }}</a></li>
 	{% endfor %}
 </ul>
-
-<script>
-
-var waitingToFilter;
-
-// Find which indices to display.
-async function getIndices() {
-	searchBar = document.getElementById('searchBar');
-	courseList = document.getElementById('courseList');
-	li = courseList.getElementsByTagName('li');
-	
-	filter = searchBar.value.toUpperCase();
-	
-	var toDisplay = [];
-	
-	for (i = 0; i < li.length; i++) {
-		c = li[i];
-		
-		text = c.textContent || c.innerText;
-		if (text.toUpperCase().startsWith(filter)) {
-			toDisplay.push(true);
-		} else {
-			toDisplay.push(false);
-		}
-	}
-	return toDisplay;
-}
-
-async function filterstuff() {
-	searchBar = document.getElementById('searchBar');
-	courseList = document.getElementById('courseList');
-	li = courseList.getElementsByTagName('li');
-	
-	filter = searchBar.value.toUpperCase().trim();
-	
-	for (i = 0; i < li.length; i++) {
-		c = li[i];
-		
-		text = c.textContent || c.innerText;
-		if (text.length == 0 || text.toUpperCase().indexOf(filter) > -1) {
-			c.style.display = "";
-		} else {
-			c.style.display = "none";
-		}
-	}
-}
-
-async function filterCourses() {
-	//await resolveAfter2Seconds();
-	//return;
-	
-	clearTimeout(waitingToFilter);
-	waitingToFilter = setTimeout(filterstuff, 250);
-}
-
-
-</script>
-
 {% else %}
 <p>No courses found.</p>
 {% endif %}
-
 {% endblock %}

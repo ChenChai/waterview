@@ -1,0 +1,48 @@
+{% extends "base_generic.html" %}
+
+{% block content %} 
+{% block pre_filter %}
+<h1> Title</h1>
+<h3>Subtitle</h3>
+{% endblock %}
+
+<input type="text" id="searchBar" onkeyup="filterCourses()" placeholder="{% block filter_hint %}Filter...{% endblock %}">
+
+{% block post_filter %}
+<ul id="">
+	<li>Item 1</li>
+	<li>Item 2</li>
+</ul>
+{% endblock %}
+
+<script>
+var waitingToFilter;
+
+async function filterstuff() {
+	searchBar = document.getElementById('searchBar');
+	filterList = document.getElementById('filterList');
+	li = filterList.getElementsByTagName('li');
+	
+	filter = searchBar.value.toUpperCase().trim();
+	
+	for (i = 0; i < li.length; i++) {
+		c = li[i];
+		
+		text = c.textContent || c.innerText;
+		if (text.length == 0 || text.toUpperCase().indexOf(filter) > -1) {
+			c.style.display = "";
+		} else {
+			c.style.display = "none";
+		}
+	}
+}
+
+async function filterCourses() {
+	// After the user types something, wait a little after
+	// they stop typing to filter.
+	clearTimeout(waitingToFilter);
+	waitingToFilter = setTimeout(filterstuff, 250);
+}
+</script>
+
+{% endblock %}
