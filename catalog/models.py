@@ -1,4 +1,5 @@
 from django.db import models
+from django.urls import reverse
 
 class Subject(models.Model):
     """Model representing an academic subject at UWaterloo"""
@@ -28,6 +29,22 @@ class Term(models.Model):
     def __str__(self):
         return str(self.code)
 
+class Instructor(models.Model):
+    """Model representing an instructor. At the moment, 
+    instructors are unique by name, since we don't have access
+    to IDs. We'll still keep a separate primary key ID, 
+    automatically made by django."""
+    
+    firstName = models.CharField(max_length=100)
+    lastName = models.CharField(max_length=100)
+    
+    class Meta:
+        unique_together = ['firstName', 'lastName']
+        ordering = ['firstName', 'lastName']
+    
+    def __str__(self):
+        return firstName + ' ' + lastName
+
 class Course(models.Model):
     """Model representing a course at UWaterloo"""
     
@@ -48,6 +65,12 @@ class Course(models.Model):
         """String representation of Course"""
         return str(self.subject) + ' ' + str(self.code)
     
+    def getAbsoluteUrl(self):
+        return reverse(views.courses) + str(self.subject.code) + '/' + self.code + '/'
+
+# import after function: https://stackoverflow.com/questions/11698530/two-python-modules-require-each-others-contents-can-that-work
+from catalog import views
+
 class CourseOffering(models.Model):
     """Model representing an offering of a course in a given term."""
     
@@ -112,22 +135,6 @@ class ClassOffering(models.Model):
     def __str__(self):
         return str(self.courseOffering) + ' ' + str(self.classNum)
 
-class Instructor(models.Model):
-    """Model representing an instructor. At the moment, 
-    instructors are unique by name, since we don't have access
-    to IDs. We'll still keep a separate primary key ID, 
-    automatically made by django."""
-    
-    firstName = models.CharField(max_length=100)
-    lastName = models.CharField(max_length=100)
-    
-    class Meta:
-        unique_together = ['firstName', 'lastName']
-        ordering = ['firstName', 'lastName']
-    
-    def __str__(self):
-        return firstName + ' ' + lastName
-    
 class ClassLocation(models.Model):
     """Model representing one class location as presented
         in the API query data. This information is stored
