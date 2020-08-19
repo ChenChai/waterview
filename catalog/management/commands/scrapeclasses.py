@@ -24,7 +24,7 @@ class Command(BaseCommand):
         existingInstructors = list(Instructor.objects.all())
         existingInstructorsDict = {}
         for existing in existingInstructors:
-            existingInstructorsDict.setDefault(existing.firstName, {})[existing.lastName] = True
+            existingInstructorsDict.setdefault(existing.firstName, {})[existing.lastName] = True
         print("Done!")
 
         print("Building existing classes dict")
@@ -116,16 +116,19 @@ class Command(BaseCommand):
                         # instructor already exists.
                         instructors.append(Instructor.objects.get(firstName=firstName, lastName=lastName))
                     else:
-                        instructorRecord = Instructor(
-                            firstName=firstName,
-                            lastName=lastName,
-                        )
-                        print("        Adding Instructor: " + str(fullName))
+                        try:
+                            instructorRecord = Instructor(
+                                firstName=firstName,
+                                lastName=lastName,
+                            )
+                            print("        Adding Instructor: " + str(fullName))
 
-                        instructorRecord.save()
-                        existingInstructorsDict.setDefault(firstName, {})[lastName] = True
-                        
-                        instructors.append(instructorRecord)
+                            instructorRecord.save()
+                            existingInstructorsDict.setdefault(firstName, {})[lastName] = True
+                            
+                            instructors.append(instructorRecord)
+                        except IntegrityError as e:
+                            print("        Error: " + str(e))
                         
                 locationRecord = ClassLocation(
                     classOffering =classRecord,
