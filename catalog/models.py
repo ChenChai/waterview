@@ -68,9 +68,6 @@ class Course(models.Model):
     def getAbsoluteUrl(self):
         return reverse(views.courses) + str(self.subject.code) + '/' + self.code + '/'
 
-# import after function: https://stackoverflow.com/questions/11698530/two-python-modules-require-each-others-contents-can-that-work
-from catalog import views
-
 class CourseOffering(models.Model):
     """Model representing an offering of a course in a given term."""
     
@@ -188,3 +185,6 @@ class ClassReserve(models.Model):
         return str(self.classOffering) + ' ' + str(reserveGroup)
     
     
+    
+# import after functions: https://stackoverflow.com/questions/11698530/two-python-modules-require-each-others-contents-can-that-work
+from catalog import views

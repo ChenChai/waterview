@@ -1,7 +1,6 @@
 from django.shortcuts import render, redirect
-from catalog.models import *
 from django.views import generic
-
+from catalog.models import *
 def homepage(request):
     """View function for homepage."""
 
@@ -79,3 +78,5 @@ class InstructorListView(generic.ListView):
         display it."""
         
     model = Instructor
+
+
