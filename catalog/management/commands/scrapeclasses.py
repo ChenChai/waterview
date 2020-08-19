@@ -24,7 +24,7 @@ class Command(BaseCommand):
         existingInstructors = list(Instructor.objects.all())
         existingInstructorsDict = {}
         for existing in existingInstructors:
-            existingInstructorsDict[existing.firstName + existing.lastName] = True
+            existingInstructorsDict.setDefault(existing.firstName, {})[existing.lastName] = True
         print("Done!")
 
         print("Building existing classes dict")
@@ -112,7 +112,7 @@ class Command(BaseCommand):
                     firstName = fullName[0]
                     lastName = fullName[1]
                     
-                    if existingInstructorsDict.get(firstName + lastName, False) == True:
+                    if existingInstructorsDict.get(firstName, {}).get(lastName, False) == True:
                         # instructor already exists.
                         instructors.append(Instructor.objects.get(firstName=firstName, lastName=lastName))
                     else:
@@ -123,7 +123,7 @@ class Command(BaseCommand):
                         print("        Adding Instructor: " + str(fullName))
 
                         instructorRecord.save()
-                        existingInstructorsDict[firstName+lastName] = True
+                        existingInstructorsDict.setDefault(firstName, {})[lastName] = True
                         
                         instructors.append(instructorRecord)
                         
