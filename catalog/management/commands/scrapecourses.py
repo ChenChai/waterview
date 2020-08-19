@@ -41,7 +41,7 @@ class Command(BaseCommand):
         # Attempts to insert a course if it doesn't exist yet.
         def insertCourse(course):
             s = Subject.objects.get(code=course['subject'])
-            c = str(course['catalog_number'])
+            c = str(course.get('catalog_number'))
 
             # Check if a course already exists in database;
             # if not, insert it into the database.
@@ -51,7 +51,7 @@ class Command(BaseCommand):
             else:
                 print("COURSE found: " + str(s) + " " + c)
                 try:
-                    courseModel = Course(subject=s, code=c)
+                    courseModel = Course(subject=s, code=c, name=course.get('title'))
                     courseModel.save()
                     
                     # Also update existing courses dictionary with new course.
@@ -91,6 +91,23 @@ class Command(BaseCommand):
 
                 except Exception as e:
                     print("Error inserting course offering: " + str(e))
+        
+        
+        # Also look through courses returned by API itself.
+        # API call to get courses for this term.
+        for subject in subjects:
+            subjectCode = subject.code
+            print("Subject: " + subjectCode)
+
+            # API call to get courses for this term.
+            response = requests.get(
+                f"https://api.uwaterloo.ca/v2/courses/{subjectCode}.json?key={key}")
+            
+            courses = response.json()['data']
+            
+            for course in courses:
+                insertCourse(course)
+                
 
         # Loop through each term looking for courses that don't exist yet.
         for term in terms:
@@ -108,19 +125,6 @@ class Command(BaseCommand):
                 insertCourseOffering(course, termCode)
 
 
-        # Also look through courses returned by API itself.
-        # API call to get courses for this term.
-        for subject in subjects:
-            subjectCode = subject.code
-            print("Subject: " + subjectCode)
 
-            # API call to get courses for this term.
-            response = requests.get(
-                f"https://api.uwaterloo.ca/v2/courses/{subjectCode}.json?key={key}")
-            
-            courses = response.json()['data']
-            
-            for course in courses:
-                insertCourse(course)
 
         print("Done! Found " + str(new['courses']) + " new courses and " + str(new['offerings']) + " new course offerings.")

@@ -56,6 +56,7 @@ class Course(models.Model):
     # ~3-4 digits normally
     code = models.CharField(max_length=10, help_text="Numbers/characters after subject for the course")
     
+    name = models.CharField(max_length=100, null=True)
     
     class Meta:
         # Subject and code together act as a primary key.
@@ -81,6 +82,9 @@ class CourseOffering(models.Model):
     
     # i.e. Algebra for Honours Mathematics
     name = models.CharField(max_length=100)
+    
+    # Number of credits the course is worth
+    units = models.CharField(max_length=10, null=True)
     
     class Meta:
         unique_together = (('course', 'term'),)
