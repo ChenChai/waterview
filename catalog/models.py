@@ -87,7 +87,7 @@ class ClassOffering(models.Model):
     topic = models.CharField(max_length=100, null=True)
     
     # i.e. MC
-    campus = models.CharField(max_length=10)
+    campus = models.CharField(max_length=100)
     
     # Administrative values for enrollment
     associatedClass = models.CharField(max_length=10)

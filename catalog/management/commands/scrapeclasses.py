@@ -53,120 +53,100 @@ class Command(BaseCommand):
             subjectCode = classOffering['subject']
             courseCatalogNum = classOffering['catalog_number']
             classNum = classOffering['class_number']
-            
-            try:
-                # Find existing models
-                termModel = Term.objects.get(code=termCode)
-                subjectModel = Subject.objects.get(code=subjectCode)
-                courseModel = Course.objects.get(subject=subjectModel, code=courseCatalogNum)
-                courseOfferingModel = CourseOffering.objects.get(
-                    term=termModel, course=courseModel)
-                
-                if existingClassesDict.get(subjectCode+courseCatalogNum+termCode, {}).get(str(classNum), False) == True:
-                    # Already exists; skip insert.
-                    classRecord = ClassOffering.objects.get(classNum=classNum, courseOffering=courseOfferingModel)
-                    print("    Class exists; updating reserves/locations for: " + str(classRecord))
-
-                else: 
-                    # Insert new class.
-                    classRecord = ClassOffering(
-                        classNum=classNum,
-                        courseOffering=courseOfferingModel,
-                        sectionName=classOffering['section'],
-                        topic=classOffering['topic'],
-                        campus=classOffering['campus'],
-                        associatedClass=str(classOffering['associated_class']),
-                        relComp1=str(classOffering['related_component_1']),
-                        relComp2=str(classOffering['related_component_2']),
-                        enrollmentCapacity=classOffering['enrollment_capacity'],
-                        enrollmentTotal=classOffering['enrollment_total'],
-                    )
-                    
-                    print("    Adding class: " + str(classRecord))
-                    classRecord.save()
-                    
-                    existingClassesDict.setdefault(subjectCode+courseCatalogNum+termCode, {})[classNum] = True
-                                    
-                # Delete existing Reserve and ClassLocation objects associated with this class.
-                # We'll re-insert the data even if the class already exists.
-                ClassLocation.objects.filter(classOffering=classRecord).delete()
-                ClassReserve.objects.filter(classOffering=classRecord).delete()
-                
-                for reserve in classOffering['reserves']:
-                    try:
-                        print("        Adding reserve for " + str(reserve['reserve_group']))
-
-                        reserveRecord = ClassReserve(
-                            classOffering=classRecord,
-                            reserveGroup=reserve['reserve_group'],
-                            enrollmentCapacity=reserve['enrollment_capacity'],
-                            enrollmentTotal=reserve['enrollment_total'],
-                        )
-                        
-                        reserveRecord.save()
-                        
-                    except Exception as e:
-                        print("        Error inserting reserve: " + str(e))
-
-
-                for classLocation in classOffering['classes']:
-                    
-                    instructors = []
-                    
-                    
-                    
-                    for instructor in classLocation['instructors']:
-                        fullName = instructor.split(',', 1)
-                        firstName = fullName[0]
-                        lastName = fullName[1]
-                        
-                        if existingInstructorsDict.get(firstName + lastName, False) == True:
-                            # instructor already exists.
-                            instructors.append(Instructor.objects.get(firstName=firstName, lastName=lastName))
-                        else:
-                            try:
-                                instructorRecord = Instructor(
-                                    firstName=firstName,
-                                    lastName=lastName,
-                                )
-                                print("        Adding Instructor: " + str(fullName))
-
-                                instructorRecord.save()
-                                existingInstructorsDict[firstName+lastName] = True
-                                
-                                instructors.append(instructorRecord)
-                                
-                            except Exception as e:
-                                print("        Error inserting instructor: " + str(e))
-                    
-                    try:
-                        locationRecord = ClassLocation(
-                            classOffering=classRecord,
-                            startDate=classLocation['date']['start_date'],
-                            endDate=classLocation['date']['end_date'],
-                            startTime=classLocation['date']['start_time'],
-                            endTime=classLocation['date']['end_time'],
-                            weekdays=classLocation['date']['weekdays'],
-                            building=classLocation['location']['building'],
-                            room=classLocation['location']['room'],
-                            isCancelled=classLocation['date']['is_cancelled'],
-                            isClosed=classLocation['date']['is_closed'],
-                            isTBA=classLocation['date']['is_tba'],
-                        )
-                        
-                        print("        Adding ClassLocation: " + str(locationRecord))
-                        locationRecord.save()
-                        
-                        for instructorRecord in instructors:
-                            locationRecord.instructor.add(instructorRecord)
-                        
-                    except Exception as e:
-                            print("        Error inserting ClassLocation: " + str(e))
-
-            except IntegrityError as e:
-                    print("    Error adding class: " + str(e))
-
         
+            # Find existing models
+            termModel = Term.objects.get(code=termCode)
+            subjectModel = Subject.objects.get(code=subjectCode)
+            courseModel = Course.objects.get(subject=subjectModel, code=courseCatalogNum)
+            courseOfferingModel = CourseOffering.objects.get(
+                term=termModel, course=courseModel)
+            
+            if existingClassesDict.get(subjectCode+courseCatalogNum+termCode, {}).get(str(classNum), False) == True:
+                # Already exists; skip insert.
+                classRecord = ClassOffering.objects.get(classNum=classNum, courseOffering=courseOfferingModel)
+                print("    Class exists; updating reserves/locations for: " + str(classRecord))
+
+            else: 
+                # Insert new class.
+                classRecord = ClassOffering(
+                    classNum=classNum,
+                    courseOffering=courseOfferingModel,
+                    sectionName=classOffering['section'],
+                    topic=classOffering['topic'],
+                    campus=classOffering['campus'],
+                    associatedClass=str(classOffering['associated_class']),
+                    relComp1=str(classOffering['related_component_1']),
+                    relComp2=str(classOffering['related_component_2']),
+                    enrollmentCapacity=classOffering['enrollment_capacity'],
+                    enrollmentTotal=classOffering['enrollment_total'],
+                )
+                
+                print("    Adding class: " + str(classRecord))
+                classRecord.save()
+                
+                existingClassesDict.setdefault(subjectCode+courseCatalogNum+termCode, {})[classNum] = True
+                                
+            # Delete existing Reserve and ClassLocation objects associated with this class.
+            # We'll re-insert the data even if the class already exists.
+            ClassLocation.objects.filter(classOffering=classRecord).delete()
+            ClassReserve.objects.filter(classOffering=classRecord).delete()
+            
+            for reserve in classOffering['reserves']:
+                print("        Adding reserve for " + str(reserve['reserve_group']))
+
+                reserveRecord = ClassReserve(
+                    classOffering=classRecord,
+                    reserveGroup=reserve['reserve_group'],
+                    enrollmentCapacity=reserve['enrollment_capacity'],
+                    enrollmentTotal=reserve['enrollment_total'],
+                )
+                
+                reserveRecord.save()
+
+            for classLocation in classOffering['classes']:
+                
+                instructors = []
+
+                for instructor in classLocation['instructors']:
+                    fullName = instructor.split(',', 1)
+                    firstName = fullName[0]
+                    lastName = fullName[1]
+                    
+                    if existingInstructorsDict.get(firstName + lastName, False) == True:
+                        # instructor already exists.
+                        instructors.append(Instructor.objects.get(firstName=firstName, lastName=lastName))
+                    else:
+                        instructorRecord = Instructor(
+                            firstName=firstName,
+                            lastName=lastName,
+                        )
+                        print("        Adding Instructor: " + str(fullName))
+
+                        instructorRecord.save()
+                        existingInstructorsDict[firstName+lastName] = True
+                        
+                        instructors.append(instructorRecord)
+                        
+                locationRecord = ClassLocation(
+                    classOffering=classRecord,
+                    startDate=classLocation['date']['start_date'],
+                    endDate=classLocation['date']['end_date'],
+                    startTime=classLocation['date']['start_time'],
+                    endTime=classLocation['date']['end_time'],
+                    weekdays=classLocation['date']['weekdays'],
+                    building=classLocation['location']['building'],
+                    room=classLocation['location']['room'],
+                    isCancelled=classLocation['date']['is_cancelled'],
+                    isClosed=classLocation['date']['is_closed'],
+                    isTBA=classLocation['date']['is_tba'],
+                )
+                
+                print("        Adding ClassLocation: " + str(locationRecord))
+                locationRecord.save()
+                
+                for instructorRecord in instructors:
+                    locationRecord.instructor.add(instructorRecord)
+
         for row in result:
             termCode = row[0]
             subjectCode = row[1]
