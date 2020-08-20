@@ -10,7 +10,7 @@
 {% if course_list %}
 <ul id="filterList">
 	{% for course in course_list %}
-		<li><a href="{{ course.getAbsoluteUrl }}">{{ course.subject }} {{ course.code }}</a></li>
+		<li><a href="{{ course.getAbsoluteUrl }}">{{ course.subject }} {{ course.code }} - {{ course.name }}</a></li>
 	{% endfor %}
 </ul>
 {% else %}

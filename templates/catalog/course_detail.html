@@ -4,13 +4,13 @@
 
 {% if exists %}
 	<h1> {{ subject_code }} {{ catalog_code }}</h1>
-	<h3> {{ course.name }} </h3>
+	<h3><a href="{{course.subject.getAbsoluteUrl}}">{{ course.subject.name }}</a> - {{ course.name }}<h3>
 	{% if term_list %}
 		<div>
-		<input type="checkbox" id="onlyOfferedCheck"> 
-		<label for="onlyOfferedCheck">Show only terms where {{ subject_code }} {{ catalog_code }} was offered<br/><br/></label></div>
+		<input type="checkbox" id="showOfferedCheck" onclick="updateShowOffered()"> 
+		<label for="showOfferedCheck">Show only terms where {{ subject_code }} {{ catalog_code }} was offered<br/><br/></label></div>
 
-		<table>
+		<table id="termTable">
 			<tr>
 				<th>Term</th>
 				<th></th>
@@ -28,7 +28,7 @@
 					{% endfor %}
 				</tr>
 				{% else %}
-				<tr style="color:grey;">
+				<tr style="color:grey;" class="offeredUnknown">
 					<td>{{ term.code }}</td>
 					<td>{{ term.name }}</td>
 					<td>Unknown</td>
@@ -46,6 +46,41 @@
 			
 			{% endcomment %}
 		</table>
+		
+		<script>
+			function updateShowOffered() {
+				console.log("clicked!")
+				showOfferedCheck = document.getElementById("showOfferedCheck")
+				onlyShowOffered = showOfferedCheck.checked
+				
+				table = document.getElementById("termTable")
+				
+				for (var i = 0, row; row = table.rows[i]; i++) {
+
+					if (row.className == "offeredUnknown") {
+
+						if (onlyShowOffered == true) {
+							console.log("Filtering row, offeredUnkonwn = true, hiding row")
+
+							row.style.display = "none"
+						} else {
+							console.log("Filtering row, offeredUnkonwn = true, showing row")
+							row.style.display = ""
+						}
+					} else {
+						console.log("Filtering row, offeredUnkonwn = false")
+
+					
+					}
+				}
+				
+				
+			}
+			
+			document.getElementById("showOfferedCheck").checked = true
+			updateShowOffered()
+		</script>
+
 	{% else %}
 		There is no record of this course being offered.
 	{% endif %}

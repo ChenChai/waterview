@@ -103,11 +103,8 @@ def courseDetail(request, subject, code):
                     # will be output to in the table.
                     termList[offering.term] = [offering.term.name, 'offered']
                     
-                
                 context['term_list'] = termList
-                
-                print("term_list: " + str(termList))
-    
+                    
     return render(request, 'catalog/course_detail.html', context=context)
 
 class InstructorListView(generic.ListView):
