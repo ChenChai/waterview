@@ -70,23 +70,43 @@ def courseDetail(request, subject, code):
         
         # Check if the course exists.
         if Course.objects.filter(subject=subjectModel, code=code.upper()).exists():
-            model = Course.objects.get(subject=subjectModel, code=code.upper())
+            courseModel = Course.objects.get(subject=subjectModel, code=code.upper())
 
             # Redirect to all uppercase
             if subject.upper() != subject or code.upper() != code:
-                return redirect(model.getAbsoluteUrl())
-                
+                return redirect(courseModel.getAbsoluteUrl())
+                 
             context = {
                 'subject_code': subject,
                 'catalog_code': code,
-                'course': model,
+                'course': courseModel,
                 'exists': True,
             }
             
-            if CourseOffering.objects.filter(course=model).exists():
-                context['offering_list'] = list(CourseOffering.objects.filter(course=model).select_related('term'))
+            offeringQS = CourseOffering.objects.filter(course=courseModel).select_related('term')
             
+            if offeringQS.exists():
+                
+                terms = Term.objects.all().order_by('-code')
+                
+                termList = {}
+                
+                offeringList = list(offeringQS)
+                
+                for term in terms:
+                    # Set default to false so template will
+                    # know what to not render.
+                    termList[term] = False
 
+                for offering in offeringList:
+                    # Ordering of array is order the values 
+                    # will be output to in the table.
+                    termList[offering.term] = [offering.term.name, 'offered']
+                    
+                
+                context['term_list'] = termList
+                
+                print("term_list: " + str(termList))
     
     return render(request, 'catalog/course_detail.html', context=context)
 

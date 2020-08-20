@@ -5,13 +5,47 @@
 {% if exists %}
 	<h1> {{ subject_code }} {{ catalog_code }}</h1>
 	<h3> {{ course.name }} </h3>
-	{% if offering_list %}
-		This course has been offered in the following terms:
-		<ul>
-			{% for offering in offering_list %}
-				<li>{{ offering.term.name }}</a></li>
+	{% if term_list %}
+		<div>
+		<input type="checkbox" id="onlyOfferedCheck"> 
+		<label for="onlyOfferedCheck">Show only terms where {{ subject_code }} {{ catalog_code }} was offered<br/><br/></label></div>
+
+		<table>
+			<tr>
+				<th>Term</th>
+				<th></th>
+				<th>Status</th>
+				<th>Enrollment</th>
+				<th>Max<th>
+			</tr>	
+				
+			{% for term, info in term_list.items %}
+				{% if info %}
+				<tr>
+					<td>{{term}}</td>
+					{% for value in info %}
+						<td>{{value}}</td>
+					{% endfor %}
+				</tr>
+				{% else %}
+				<tr style="color:grey;">
+					<td>{{ term.code }}</td>
+					<td>{{ term.name }}</td>
+					<td>Unknown</td>
+					<td></td>
+				</tr>
+				
+				{% endif %}
 			{% endfor %}
-		</ul>
+			
+			
+			{% comment %}
+			{% for offering in offering_list %}
+				<tr><td>{{ offering.term.name }}</td></tr>
+			{% endfor %}
+			
+			{% endcomment %}
+		</table>
 	{% else %}
 		There is no record of this course being offered.
 	{% endif %}
