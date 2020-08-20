@@ -101,7 +101,7 @@ def courseDetail(request, subject, code):
                 for offering in offeringList:
                     # Ordering of array is order the values 
                     # will be output to in the table.
-                    termList[offering.term] = [offering.term.name, 'offered']
+                    termList[offering.term] = ['offered']
                     
                 context['term_list'] = termList
                     

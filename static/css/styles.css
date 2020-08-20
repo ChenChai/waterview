@@ -26,6 +26,10 @@ body {
 
 }
 
+a {
+	color: #737CA1;
+}
+
 .navbar a {
 	display: block;
 	padding: 5px;
@@ -59,6 +63,11 @@ body {
 	background: black;
 	padding: 3px;
 	font-size: 12px;
+}
+
+table {
+	border: none;
+	border-collapse: collapse;
 }
 
 th {

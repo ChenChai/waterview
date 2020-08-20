@@ -23,6 +23,8 @@
 				{% if info %}
 				<tr>
 					<td>{{term}}</td>
+					<td>{{term.reverseName}}</td>
+					
 					{% for value in info %}
 						<td>{{value}}</td>
 					{% endfor %}
@@ -30,7 +32,7 @@
 				{% else %}
 				<tr style="color:grey;" class="offeredUnknown">
 					<td>{{ term.code }}</td>
-					<td>{{ term.name }}</td>
+					<td>{{ term.reverseName }}</td>
 					<td>Unknown</td>
 					<td></td>
 				</tr>

@@ -31,6 +31,14 @@ class Term(models.Model):
     
     def __str__(self):
         return str(self.code)
+    
+    def reverseName(self):
+        """Prints term name in reversed order (i.e. 2020 Winter)"""
+        split = self.name.split(' ', 1)
+        if len(split) == 1:
+            return split[0]
+        else:
+            return split[1] + ' ' + split[0]
 
 class Instructor(models.Model):
     """Model representing an instructor. At the moment, 
