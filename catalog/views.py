@@ -145,7 +145,7 @@ def courseDetail(request, subject, code):
                     # will be output to in the table.
                     termList[offering.term] = {
                         'status': 'offered', 
-                        'instructors': termInstructorDict.get(str(offering.term), []),
+                        'instructors': termInstructorDict.get(str(offering.term), None),
                     }
                     
                 context['term_list'] = termList

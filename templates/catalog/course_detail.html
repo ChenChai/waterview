@@ -29,6 +29,7 @@
 					<td></td>
 					<td></td>
 					<td>
+						{% if info.instructors %}
 						<input type="checkbox" class="toggle_box" id="{{term}}_toggle_box"/>
 						<label for="{{term}}_toggle_box">
 							+
@@ -38,7 +39,12 @@
 							{% endfor %}
 							</div>
 						</label>
+						{% else %}
+						Unknown
+						{% endif %}
 					</td>
+
+					
 				</tr>
 				{% else %}
 				<tr style="color:grey;" class="offeredUnknown">
