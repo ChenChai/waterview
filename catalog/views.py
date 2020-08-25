@@ -175,6 +175,7 @@ def courseDetail(request, subject, code):
                         for instructor in termInstructorDict.get(offering.term):
                             instructors.add(str(instructor))
                         instructors = sorted(instructors)
+
                     else: 
                         instructors = None
                     
