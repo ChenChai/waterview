@@ -161,10 +161,10 @@ def courseDetail(request, subject, code):
                         enrollmentTotal = 0
                         enrollmentMax = 0
                                           
-                        for key, val in enrollmentDict.get(offering.term, {}).get(sectionType, {}).items():
+                        for key, val in enrollmentDict.get(offering.term, {}).get(typeName, {}).items():
                             enrollmentTotal += int(val) 
                             
-                        for key, val in enrollmentMaxDict.get(offering.term, {}).get(sectionType, {}).items():
+                        for key, val in enrollmentMaxDict.get(offering.term, {}).get(typeName, {}).items():
                             enrollmentMax += int(val)    
                         
                         enrollmentData.append(str(enrollmentTotal) + "/" + str(enrollmentMax))
