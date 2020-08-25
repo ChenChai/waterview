@@ -32,6 +32,8 @@
 					{% endfor %}
 					<td>
 						{% if info.instructors %}
+						
+						{% comment %}
 						<input type="checkbox" class="toggle_box" id="{{term}}_toggle_box"/>
 						<label for="{{term}}_toggle_box">
 							+
@@ -41,6 +43,11 @@
 							{% endfor %}
 							</div>
 						</label>
+						{% endcomment %}
+						{% for inst in info.instructors %}
+						<a href="{{ inst.getAbsoluteUrl }}">{{ inst }}</a> &nbsp;
+						{% endfor %}
+						
 						{% else %}
 						Unknown
 						{% endif %}
