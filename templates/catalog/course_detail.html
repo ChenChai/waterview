@@ -15,8 +15,7 @@
 				<th>Term</th>
 				<th></th>
 				<th>Status</th>
-				<th>Enrollment</th>
-				<th>Max</th>
+				{% for type in section_types %}<th>{{type}}</th>{% endfor %}
 				<th>Instructors</th>
 			</tr>	
 				
@@ -26,8 +25,11 @@
 					<td>{{term}}</td>
 					<td>{{term.reverseName}}</td>
 					<td>{{info.status}}</td>
-					<td></td>
-					<td></td>
+					
+					
+					{% for i in info.enrollment %}
+					<td>{{i}}</td>
+					{% endfor %}
 					<td>
 						{% if info.instructors %}
 						<input type="checkbox" class="toggle_box" id="{{term}}_toggle_box"/>

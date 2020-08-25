@@ -99,7 +99,8 @@ def courseDetail(request, subject, code):
                 classLocationList = list(ClassLocation.objects
                     .filter(classOffering__courseOffering__course__subject=subject,classOffering__courseOffering__course__code=code)
                     .prefetch_related('instructor')
-                    .select_related('classOffering__courseOffering__term'))
+                    .select_related('classOffering__courseOffering__term')
+                    .order_by('classOffering__courseOffering__term'))
                 
                 # Use a dict of sets to store instructors
                 # in each term to avoid duplication.
@@ -108,20 +109,76 @@ def courseDetail(request, subject, code):
                     for instructor in list(classLocation.instructor.all()):
                         termInstructorDict.setdefault(classLocation.classOffering.courseOffering.term, set()).add(instructor)
                 
+                # Get class offerings
+                classOfferingList = list(ClassOffering.objects
+                    .filter(courseOffering__course__subject=subject,courseOffering__course__code=code)
+                    .select_related('courseOffering__term')
+                    .order_by('courseOffering__term'))
+                
+                # Returns true if a ClassOffering has any ClassLocation with isCancelled == true
+                def isCancelled(classOffering):
+                    for classLocation in classLocationList:
+                        if classLocation.classOffering == classOffering:
+                            if classLocation.isCancelled: 
+                                return True
+                        
+                    return False
+                
+                
+                # Create dictionaries containing the enrollment within sections of a class
+                enrollmentDict = {}
+                enrollmentMaxDict = {}
+                
+                sectionTypes = set()
+                
+                for classOffering in classOfferingList:
+                    sectionType = classOffering.sectionName.split(' ', 1)[0]
+                    sectionNum = classOffering.sectionName.split(' ', 1)[1]
+                    
+                    # Keep track of all the different types of sections
+                    sectionTypes.add(sectionType)
+                    
+                    # Only count enrollment for sections
+                    # that haven't been cancelled.
+                    if isCancelled(classOffering) == False:
+                        enrollmentDict.setdefault(classOffering.courseOffering.term, {}).setdefault(sectionType, {})[sectionNum] = classOffering.enrollmentTotal
+                        
+                        enrollmentMaxDict.setdefault(classOffering.courseOffering.term, {}).setdefault(sectionType, {})[sectionNum] = classOffering.enrollmentCapacity
+                
+                    
                 for term in terms:
                     # Set default to false so template will
                     # know what to not render.
                     termList[term] = False
-
+                             
+                # Loop through each course offering, getting information
                 for offering in offeringList:
+                    enrollmentData = []
+                    
+                    # Loop through each section type, getting the 
+                    # enrollment in the section.
+                    for typeName in sorted(sectionTypes):
+                        enrollmentTotal = 0
+                        enrollmentMax = 0
+                                          
+                        for key, val in enrollmentDict.get(offering.term, {}).get(sectionType, {}).items():
+                            enrollmentTotal += int(val) 
+                            
+                        for key, val in enrollmentMaxDict.get(offering.term, {}).get(sectionType, {}).items():
+                            enrollmentMax += int(val)    
+                        
+                        enrollmentData.append(str(enrollmentTotal) + "/" + str(enrollmentMax))
+                        
                     # Ordering of array is order the values 
                     # will be output to in the table.
                     termList[offering.term] = {
                         'status': 'offered', 
                         'instructors': termInstructorDict.get(offering.term, None),
+                        'enrollment': enrollmentData,
                     }
-                    
+
                 context['term_list'] = termList
+                context['section_types'] = sorted(sectionTypes)
                     
     return render(request, 'catalog/course_detail.html', context=context)
 
