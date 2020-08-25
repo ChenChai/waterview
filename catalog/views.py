@@ -169,17 +169,25 @@ def courseDetail(request, subject, code):
                         
                         enrollmentData.append(str(enrollmentTotal) + "/" + str(enrollmentMax))
                         
+                    # Sort instructors
+                    instructors = set()
+                    if offering.term in termInstructorDict:
+                        for instructor in termInstructorDict.get(offering.term):
+                            instructors.add(str(instructor))
+                    else: 
+                        instructors = None
+                    
                     # Ordering of array is order the values 
                     # will be output to in the table.
                     termList[offering.term] = {
                         'status': 'offered', 
-                        'instructors': termInstructorDict.get(offering.term, None),
+                        'instructors': sorted(instructors),
                         'enrollment': enrollmentData,
                     }
 
                 context['term_list'] = termList
                 context['section_types'] = sorted(sectionTypes)
-                    
+
     return render(request, 'catalog/course_detail.html', context=context)
 
 def instructorDetail(request, name):
