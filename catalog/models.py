@@ -55,6 +55,9 @@ class Instructor(models.Model):
     
     def __str__(self):
         return self.firstName + ' ' + self.lastName
+        
+    def getAbsoluteUrl(self):
+        return reverse('instructors') + self.firstName + '_' + self.lastName + '/'
 
 class Course(models.Model):
     """Model representing a course at UWaterloo"""

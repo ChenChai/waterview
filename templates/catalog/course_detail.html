@@ -4,7 +4,7 @@
 
 {% if exists %}
 	<h1> {{ subject_code }} {{ catalog_code }}</h1>
-	<h3><a href="{{course.subject.getAbsoluteUrl}}">{{ course.subject.name }}</a> - {{ course.name }}<h3>
+	<h3><a href="{{course.subject.getAbsoluteUrl}}">{{ course.subject.name }}</a> - {{ course.name }}</h3>
 	{% if term_list %}
 		<div>
 		<input type="checkbox" id="showOfferedCheck" onclick="updateShowOffered()"> 
@@ -35,7 +35,7 @@
 							+
 							<div>
 							{% for inst in info.instructors %}
-							<br/><a href="#">{{ inst }}</a>
+							<br/><a href="{{ inst.getAbsoluteUrl }}">{{ inst }}</a>
 							{% endfor %}
 							</div>
 						</label>

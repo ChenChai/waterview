@@ -106,7 +106,7 @@ def courseDetail(request, subject, code):
                 termInstructorDict = {}
                 for classLocation in classLocationList:
                     for instructor in list(classLocation.instructor.all()):
-                        termInstructorDict.setdefault(classLocation.classOffering.courseOffering.term, set()).add(str(instructor))
+                        termInstructorDict.setdefault(classLocation.classOffering.courseOffering.term, set()).add(instructor)
                 
                 for term in terms:
                     # Set default to false so template will
@@ -125,11 +125,23 @@ def courseDetail(request, subject, code):
                     
     return render(request, 'catalog/course_detail.html', context=context)
 
+def instructorDetail(request, name):
+    """View function for one instructor"""
+    
+    
+    context = {
+        'first_name': firstName,
+        'last_name': lastName,
+    }
+    
+    return render(request, 'catalog/instructor_detail.html', context=context)
+
 class InstructorListView(generic.ListView):
     """Generic view that will query database
         automatically. to get data on courses and
         display it."""
         
     model = Instructor
+
 
 
