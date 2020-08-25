@@ -54,7 +54,7 @@ class Instructor(models.Model):
         ordering = ['firstName', 'lastName']
     
     def __str__(self):
-        return firstName + ' ' + lastName
+        return self.firstName + ' ' + self.lastName
 
 class Course(models.Model):
     """Model representing a course at UWaterloo"""
