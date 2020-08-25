@@ -16,7 +16,8 @@
 				<th></th>
 				<th>Status</th>
 				<th>Enrollment</th>
-				<th>Max<th>
+				<th>Max</th>
+				<th>Instructors</th>
 			</tr>	
 				
 			{% for term, info in term_list.items %}
@@ -24,10 +25,20 @@
 				<tr>
 					<td>{{term}}</td>
 					<td>{{term.reverseName}}</td>
-					
-					{% for value in info %}
-						<td>{{value}}</td>
-					{% endfor %}
+					<td>{{info.status}}</td>
+					<td></td>
+					<td></td>
+					<td>
+						<input type="checkbox" class="toggle_box" id="{{term}}_toggle_box"/>
+						<label for="{{term}}_toggle_box">
+							+
+							<div>
+							{% for inst in info.instructors %}
+							<br/><a href="#">{{ inst }}</a>
+							{% endfor %}
+							</div>
+						</label>
+					</td>
 				</tr>
 				{% else %}
 				<tr style="color:grey;" class="offeredUnknown">
