@@ -153,7 +153,10 @@ def courseDetail(request, subject, code):
                         enrollmentDict.setdefault(classOffering.courseOffering.term, {}).setdefault(sectionType, {})[sectionNum] = classOffering.enrollmentTotal
                         
                         enrollmentMaxDict.setdefault(classOffering.courseOffering.term, {}).setdefault(sectionType, {})[sectionNum] = classOffering.enrollmentCapacity
-                
+                    else:  
+                        # -1 enrollment is our code for a section being cancelled.
+                        enrollmentDict.setdefault(classOffering.courseOffering.term, {}).setdefault(sectionType, {})[sectionNum] = -1
+                        enrollmentMaxDict.setdefault(classOffering.courseOffering.term, {}).setdefault(sectionType, {})[sectionNum] = -1
                     
                 for term in terms:
                     # Set default to false so template will
@@ -164,17 +167,31 @@ def courseDetail(request, subject, code):
                 for offering in offeringList:
                     enrollmentData = []
                     
+                    # check whether all classes were cancelled
+                    # for this offering
+                    allClassesCancelled = True
+                    
                     # Loop through each section type, getting the 
                     # enrollment in the section.
                     for typeName in sorted(sectionTypes):
                         enrollmentTotal = 0
                         enrollmentMax = 0
-                                          
+                         
+                        # -1 enrollment is our code for a section being cancelled.
                         for key, val in enrollmentDict.get(offering.term, {}).get(typeName, {}).items():
-                            enrollmentTotal += int(val) 
+                            if val >= 0:
+                                allClassesCancelled = False
+                                enrollmentTotal += int(val) 
                             
                         for key, val in enrollmentMaxDict.get(offering.term, {}).get(typeName, {}).items():
-                            enrollmentMax += int(val)    
+                            if val >= 0:
+                                allClassesCancelled = False
+                                enrollmentMax += int(val)    
+                        
+                        if allClassesCancelled == True:
+                            enrollmentTotal = 0
+                            enrollmentMax = 0
+                        
                         
                         enrollmentData.append(str(enrollmentTotal) + "/" + str(enrollmentMax))
                         
@@ -188,10 +205,15 @@ def courseDetail(request, subject, code):
                     else: 
                         instructors = None
                     
+                    if allClassesCancelled == True:
+                        status = 'cancelled'
+                    else:
+                        status = 'offered'
+                    
                     # Ordering of array is order the values 
                     # will be output to in the table.
                     termList[offering.term] = {
-                        'status': 'offered', 
+                        'status': status, 
                         'instructors': instructors,
                         'enrollment': enrollmentData,
                     }
