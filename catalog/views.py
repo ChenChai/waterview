@@ -20,6 +20,11 @@ def homepage(request):
     
     return render(request, 'homepage.html', context=context)
 
+def aboutpage(request):
+    """View function for about page."""
+    context = {}
+    return render(request, 'aboutpage.html', context=context)
+
 def courses(request):
     """View function for course list"""
     
