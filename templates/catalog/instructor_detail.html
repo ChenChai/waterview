@@ -6,9 +6,9 @@
 	<h1> {{ first_name }} {{ last_name }} </h1>
 
 	<ul>
-	{% for course, terms in course_offerings.items %}
+	{% for course, terms in course_offerings_items %}
 	
-		<li> <a href="{{ course.getAbsoluteUrl }}">{{ course.subject }} {{course.code }}</a>:
+		<li> <a href="{{ course.getAbsoluteUrl }}">{{ course.subject }} {{course.code }} - {{ course.name }}</a>:
 			{% for term in terms %}
 				{{ term.name }} 
 			{% endfor %}

@@ -218,7 +218,8 @@ def instructorDetail(request, instructorId):
             'first_name': instructor.firstName,
             'last_name': instructor.lastName,
             'exists': True,
-            'course_offerings': courseOfferingDict,
+            # Sort here instead of in template to use sorted()
+            'course_offerings_items': sorted(courseOfferingDict.items()),
         }
     
     return render(request, 'catalog/instructor_detail.html', context=context)

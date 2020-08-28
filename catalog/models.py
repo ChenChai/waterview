@@ -17,7 +17,10 @@ class Subject(models.Model):
     
     def getAbsoluteUrl(self):
         return reverse(views.courses) + str(self.code) + '/'
-
+    
+    def __gt__(self, other):
+        return self.code > other.code
+        
 class Term(models.Model):
     """Model representing an academic term at UWaterloo"""
     # 4-digit term code
@@ -89,6 +92,15 @@ class Course(models.Model):
     
     def getAbsoluteUrl(self):
         return reverse(views.courses) + str(self.subject.code) + '/' + self.code + '/'
+        
+    def __gt__(self, other):
+        # Compare by catalog number in alphabetical order.
+        if self.subject == other.subject:
+            return self.code > other.code
+        else:
+            return self.subject > other.subject
+        
+        
 
 class CourseOffering(models.Model):
     """Model representing an offering of a course in a given term."""
