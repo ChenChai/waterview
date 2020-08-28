@@ -1,0 +1,18 @@
+{% extends "filter_generic.html" %}
+
+{% block pre_filter %} 
+<h1>subjects.</h1>
+{% endblock %}
+{% block filter_hint %}Filter subjects.{% endblock %} 
+
+{% block post_filter %} 
+{% if subject_list %}
+<ul id="filterList">
+	{% for subject in subject_list %}
+		<li><a href="{{ subject.getAbsoluteUrl }}">{{ subject.code }} - {{ subject.name }}</a></li>
+	{% endfor %}
+</ul>
+{% else %}
+<p>No courses found.</p>
+{% endif %}
+{% endblock %}

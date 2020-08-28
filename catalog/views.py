@@ -33,6 +33,15 @@ def courses(request):
     
     return render(request, 'catalog/course_list.html', context=context)
 
+def subjects(request):
+    """View function for subject list"""
+    
+    subjectList = list(Subject.objects.all())
+    context = {
+        'subject_list': subjectList
+    }
+    return render(request, 'catalog/subject_list.html', context=context)
+
 def subjectDetail(request, subject):
     """View function for a subject (i.e. CS)"""
     
