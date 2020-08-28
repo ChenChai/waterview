@@ -39,7 +39,11 @@ class Term(models.Model):
             return split[0]
         else:
             return split[1] + ' ' + split[0]
-
+    
+    def __gt__(self, other):
+        # Term codes are listed in ascending chronological order.
+        return self.code > other.code
+    
 class Instructor(models.Model):
     """Model representing an instructor. At the moment, 
     instructors are unique by name, since we don't have access
@@ -57,7 +61,10 @@ class Instructor(models.Model):
         return self.firstName + ' ' + self.lastName
         
     def getAbsoluteUrl(self):
-        return reverse('instructors') + self.firstName + '_' + self.lastName + '/'
+        return reverse('instructors') + str(self.id) + '/'
+        
+    def __gt__(self, other):
+        return self.firstName + self.lastName > other.firstName + other.lastName
 
 class Course(models.Model):
     """Model representing a course at UWaterloo"""

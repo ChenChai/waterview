@@ -3,15 +3,20 @@
 {% block content %}
 
 {% if exists %}
-	<h1> {{ subject_code }} </h1>
-	<h3> {{ subject_name }} </h3>
+	<h1> {{ first_name }} {{ last_name }} </h1>
 
 	<ul>
-	{% for course in course_list %}
-		<li><a href="{{ course.getAbsoluteUrl }}">{{ course.subject }} {{ course.code }} - {{ course.name }}</a></li>
+	{% for course, terms in course_offerings.items %}
+	
+		<li> <a href="{{ course.getAbsoluteUrl }}">{{ course.subject }} {{course.code }}</a>:
+			{% for term in terms %}
+				{{ term.name }} 
+			{% endfor %}
+
+		</li>
 	{% endfor %}
 	</ul>
 {% else %}
-	Subject with code '{{ subject_code }}' not found.
+	Instructor not found.
 {% endif %}
 {% endblock %}

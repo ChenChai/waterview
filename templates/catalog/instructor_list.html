@@ -9,7 +9,7 @@
 {% if instructor_list %}
 <ul id="filterList">
 	{% for instructor in instructor_list %}
-		<li>{{ instructor.firstName }} {{ instructor.lastName }}</li>
+		<li><a href="{{ instructor.getAbsoluteUrl }}">{{ instructor.firstName }} {{ instructor.lastName }}</a></li>
 	{% endfor %}
 </ul>
 {% else %}

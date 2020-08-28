@@ -173,7 +173,7 @@ def courseDetail(request, subject, code):
                     instructors = set()
                     if offering.term in termInstructorDict:
                         for instructor in termInstructorDict.get(offering.term):
-                            instructors.add(str(instructor))
+                            instructors.add(instructor)
                         instructors = sorted(instructors)
 
                     else: 
@@ -192,14 +192,34 @@ def courseDetail(request, subject, code):
 
     return render(request, 'catalog/course_detail.html', context=context)
 
-def instructorDetail(request, name):
+def instructorDetail(request, instructorId):
     """View function for one instructor"""
     
-    
-    context = {
-        'first_name': firstName,
-        'last_name': lastName,
-    }
+    context = {}
+    if Instructor.objects.filter(id=instructorId).exists():
+        instructor = Instructor.objects.get(id=instructorId)
+        
+        # Get the class offerings that have been taught by this instructor
+        classLocationList = list(ClassLocation.objects.filter(instructor__id=instructor.id)
+            .select_related('classOffering__courseOffering__term','classOffering__courseOffering__course','classOffering__courseOffering__course__subject'))
+        
+        # Keys are CourseOfferings, values are a set
+        # of when they were offered.
+        courseOfferingDict = {}
+        
+        # Use the classLocations to organize the dictionary.
+        for classLocation in classLocationList:
+            courseOfferingDict.setdefault(classLocation.classOffering.courseOffering.course, set()).add(classLocation.classOffering.courseOffering.term)        
+        
+        for course, terms in courseOfferingDict.items():
+            courseOfferingDict[course] = sorted(terms, reverse=True)
+        
+        context = {
+            'first_name': instructor.firstName,
+            'last_name': instructor.lastName,
+            'exists': True,
+            'course_offerings': courseOfferingDict,
+        }
     
     return render(request, 'catalog/instructor_detail.html', context=context)
 
