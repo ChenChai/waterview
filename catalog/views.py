@@ -221,7 +221,9 @@ def courseDetail(request, subject, code):
                     else: 
                         instructors = None
                     
-                    if allClassesCancelled == True:
+                    if len(enrollmentDict.get(offering.term, {})) == 0:
+                        status = 'no sections found'
+                    else if allClassesCancelled == True:
                         status = 'cancelled'
                     else:
                         status = 'offered'
