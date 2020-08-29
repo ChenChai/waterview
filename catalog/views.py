@@ -2,20 +2,21 @@ from django.shortcuts import render, redirect
 from django.views import generic
 from catalog.models import *
 from django.db import connection, transaction
+import json
 
 def homepage(request):
     """View function for homepage."""
 
     # Generate some counts to display
     
-    numTerms = Term.objects.all().count()
+    numSubjects = Subject.objects.all().count()
     numCourses = Course.objects.all().count()
-    numCourseOfferings = CourseOffering.objects.all().count()
-    
+    numInstructors = Instructor.objects.all().count()
+
     context = {
-        'numTerms': numTerms,
-        'numCourses': numCourses,
-        'numCourseOfferings': numCourseOfferings,
+        'num_subjects': numSubjects,
+        'num_courses': numCourses,
+        'num_instructors': numInstructors,
     }
     
     return render(request, 'homepage.html', context=context)
@@ -37,6 +38,22 @@ def courses(request):
     }
     
     return render(request, 'catalog/course_list.html', context=context)
+
+
+def courseRandom(request):
+    """Redirects to a random course's page. 
+       TODO make an error page if there are no courses.
+    """
+    
+    count = Course.objects.count()
+
+    if count == 0:
+        # No courses, just redirect to home.
+        return redirect('homepage')
+    else:
+        from random import randint
+        model = Course.objects.all()[randint(0,count)] 
+        return redirect(model.getAbsoluteUrl())
 
 def subjects(request):
     """View function for subject list"""
@@ -167,7 +184,7 @@ def courseDetail(request, subject, code):
                     # Set default to false so template will
                     # know what to not render.
                     termList[term] = False
-                             
+                    
                 # Loop through each course offering, getting information
                 for offering in offeringList:
                     enrollmentData = []
@@ -193,11 +210,6 @@ def courseDetail(request, subject, code):
                                 allClassesCancelled = False
                                 enrollmentMax += int(val)    
                         
-                        if allClassesCancelled == True:
-                            enrollmentTotal = 0
-                            enrollmentMax = 0
-                        
-                        
                         enrollmentData.append(str(enrollmentTotal) + "/" + str(enrollmentMax))
                         
                     # Sort instructors
@@ -215,15 +227,17 @@ def courseDetail(request, subject, code):
                     else:
                         status = 'offered'
                     
-                    # Ordering of array is order the values 
-                    # will be output to in the table.
+                    # Add information for each term into the dictionary
                     termList[offering.term] = {
                         'status': status, 
                         'instructors': instructors,
                         'enrollment': enrollmentData,
                     }
-
-                context['term_list'] = termList
+                    
+                
+                termListItems =termList.items()# sorted(termList.items(), reverse=True)
+                                   
+                context['term_list_items'] = termListItems
                 context['section_types'] = sorted(sectionTypes)
 
     return render(request, 'catalog/course_detail.html', context=context)
