@@ -1,9 +1,20 @@
 {% extends "base_generic.html" %}
 
 {% block content %} 
+
+<h3>waterlook is about <i>exploration</i>.</h3>
 <p>
-Terms: {{ numTerms }} <br/>
-Courses: {{numCourses}} <br/>
-Course Offerings: {{ numCourseOfferings }} <br/>
+Want to know how the <a href="{% url 'courses' %}MATH/135/">class sizes of MATH 135</a> have changed across the years?<br/>
+How about what courses that <a href="{% url 'instructorRandom' %}">instructor you liked</a> has taught in the past?<br/>
+Looking for <a href="{% url 'courseRandom' %}">random courses you had no idea existed</a>?
 </p>
+<p>
+Browse from:<br/>
+<a href="{% url 'subjects' %}">{{ num_subjects }} subjects</a><br/>
+<a href="{% url 'courses' %}">{{ num_courses }} courses</a><br/>
+<a href="{% url 'instructors' %}">{{ num_instructors }} instructors</a><br/>
+</p>
+
+
+<p style="color: gold;"><b>A brief note:</b> waterlook is a work-in-progress and some course data may be missing or contain inconsistencies. </p>
 {% endblock %}

@@ -5,7 +5,8 @@
 {% if exists %}
 	<h1> {{ subject_code }} {{ catalog_code }}</h1>
 	<h3><a href="{{course.subject.getAbsoluteUrl}}">{{ course.subject.name }}</a> - {{ course.name }}</h3>
-	{% if term_list %}
+	
+	{% if term_list_items %}
 		<div>
 		<input type="checkbox" id="showOfferedCheck" onclick="updateShowOffered()"> 
 		<label for="showOfferedCheck">Show only terms where {{ subject_code }} {{ catalog_code }} was offered<br/><br/></label></div>
@@ -19,7 +20,7 @@
 				<th>Instructors</th>
 			</tr>	
 				
-			{% for term, info in term_list.items %}
+			{% for term, info in term_list_items %}
 				{% if info %}
 				<tr>
 					<td>{{term}}</td>
