@@ -39,7 +39,6 @@ def courses(request):
     
     return render(request, 'catalog/course_list.html', context=context)
 
-
 def courseRandom(request):
     """Redirects to a random course's page. 
        TODO make an error page if there are no courses.
@@ -273,6 +272,21 @@ def instructorDetail(request, instructorId):
         }
     
     return render(request, 'catalog/instructor_detail.html', context=context)
+
+def instructorRandom(request):
+    """Redirects to a random instructor's page. 
+       TODO make an error page if there are no instructors.
+    """
+    
+    count = Instructor.objects.count()
+
+    if count == 0:
+        # No instructors, just redirect to home.
+        return redirect('homepage')
+    else:
+        from random import randint
+        model = Instructor.objects.all()[randint(0,count)] 
+        return redirect(model.getAbsoluteUrl())
 
 class InstructorListView(generic.ListView):
     """Generic view that will query database
