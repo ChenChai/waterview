@@ -36,13 +36,11 @@
 							{{i.enrollmentTotal}}/{{i.enrollmentMax}}<br/>
 								<div class="tooltiptext nowrap">
 									Sections: {{i.sectionCount}}<br/>
-									Average Size: {{i.avgSize}}
-									<p>
+									Average Size: {{i.avgSize}}<br/>
+									
 									{% for sec in i.sections %}
-										
-									{{ sec.name }}: {% if sec.isCancelled %}Cancelled {% else %} {{sec.total}}/{{sec.max}} {% endif %} <br/>
+									<br/>{{ sec.name }}: {% if sec.isCancelled %}Cancelled {% else %} {{sec.total}}/{{sec.max}} {% endif %} 
 									{% endfor %}
-									</p>
 									</div>
 								</div>
 					</td>
