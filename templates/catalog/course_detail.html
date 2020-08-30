@@ -10,7 +10,7 @@
 		<div>
 		<input type="checkbox" id="showOfferedCheck" onclick="updateShowOffered()"> 
 		<label for="showOfferedCheck">Show only terms where {{ subject_code }} {{ catalog_code }} was offered<br/><br/></label></div>
-
+		<div>
 		<table id="termTable">
 			<tr>
 				<th>Term</th>
@@ -22,27 +22,29 @@
 				
 			{% for term, info in term_list_items %}
 				{% if info %}
-				<tr>
+
+
+				<tr class="js_toggle_box_unchecked" onclick="updateToggleBox(this)">
+
 					<td>{{term}}</td>
 					<td class="nowrap">{{term.reverseName}}</td>
 					<td class="nowrap">{{info.status}}</td>
 					
 					{% for i in info.enrollment %}
 					<td>
-						<input type="checkbox" class="toggle_box" id="{{term}}_{{i.sectionType}}_toggle_box"/>
-						<label for="{{term}}_{{i.sectionType}}_toggle_box">
+							<div class="tooltip">
 							{{i.enrollmentTotal}}/{{i.enrollmentMax}}<br/>
-							<div class="nowrap subtitle">
-								Sections: {{i.sectionCount}}<br/>
-								Average Size: {{i.avgSize}}
-								<p>
-								{% for sec in i.sections %}
-									
-								{{ sec.name }}: {% if sec.isCancelled %}Cancelled {% else %} {{sec.total}}/{{sec.max}} {% endif %} <br/>
-								{% endfor %}
-								</p>
-							</div>
-						</label>
+								<div class="tooltiptext nowrap">
+									Sections: {{i.sectionCount}}<br/>
+									Average Size: {{i.avgSize}}
+									<p>
+									{% for sec in i.sections %}
+										
+									{{ sec.name }}: {% if sec.isCancelled %}Cancelled {% else %} {{sec.total}}/{{sec.max}} {% endif %} <br/>
+									{% endfor %}
+									</p>
+									</div>
+								</div>
 					</td>
 					{% endfor %}
 					
@@ -68,9 +70,8 @@
 						Unknown
 						{% endif %}
 					</td>
-
-					
 				</tr>
+
 				{% else %}
 				<tr style="color:grey;" class="offeredUnknown">
 					<td>{{ term.code }}</td>
@@ -90,10 +91,9 @@
 			
 			{% endcomment %}
 		</table>
-		
+		</div>
 		<script>
 			function updateShowOffered() {
-				console.log("clicked!")
 				showOfferedCheck = document.getElementById("showOfferedCheck")
 				onlyShowOffered = showOfferedCheck.checked
 				
