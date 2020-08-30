@@ -24,15 +24,15 @@ urlpatterns = [
 from django.urls import include
 
 urlpatterns += [
-    path('catalog/', include('catalog.urls')),
+    path('', include('catalog.urls')),
 ]
 
 # Redirect base URL to catalog application, since it's the only application so far in our project.
 from django.views.generic import RedirectView
 
-urlpatterns += [
-    path('', RedirectView.as_view(url='catalog/', permanent=True))
-]
+#urlpatterns += [
+#    path('', RedirectView.as_view(url='catalog/', permanent=True))
+#]
 
 # Add static files during development
 from django.conf import settings
