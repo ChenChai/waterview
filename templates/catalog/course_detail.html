@@ -24,13 +24,28 @@
 				{% if info %}
 				<tr>
 					<td>{{term}}</td>
-					<td class="td_nowrap">{{term.reverseName}}</td>
-					<td>{{info.status}}</td>
-					
+					<td class="nowrap">{{term.reverseName}}</td>
+					<td class="nowrap">{{info.status}}</td>
 					
 					{% for i in info.enrollment %}
-					<td>{{i}}</td>
+					<td>
+						<input type="checkbox" class="toggle_box" id="{{term}}_{{i.sectionType}}_toggle_box"/>
+						<label for="{{term}}_{{i.sectionType}}_toggle_box">
+							{{i.enrollmentTotal}}/{{i.enrollmentMax}}<br/>
+							<div class="nowrap subtitle">
+								Sections: {{i.sectionCount}}<br/>
+								Average Size: {{i.avgSize}}
+								<p>
+								{% for sec in i.sections %}
+									
+								{{ sec.name }}: {% if sec.isCancelled %}Cancelled {% else %} {{sec.total}}/{{sec.max}} {% endif %} <br/>
+								{% endfor %}
+								</p>
+							</div>
+						</label>
+					</td>
 					{% endfor %}
+					
 					<td>
 						{% if info.instructors %}
 						

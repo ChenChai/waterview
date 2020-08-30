@@ -197,19 +197,45 @@ def courseDetail(request, subject, code):
                     for typeName in sorted(sectionTypes):
                         enrollmentTotal = 0
                         enrollmentMax = 0
-                         
-                        # -1 enrollment is our code for a section being cancelled.
-                        for key, val in enrollmentDict.get(offering.term, {}).get(typeName, {}).items():
-                            if val >= 0:
-                                allClassesCancelled = False
-                                enrollmentTotal += int(val) 
-                            
-                        for key, val in enrollmentMaxDict.get(offering.term, {}).get(typeName, {}).items():
-                            if val >= 0:
-                                allClassesCancelled = False
-                                enrollmentMax += int(val)    
                         
-                        enrollmentData.append(str(enrollmentTotal) + "/" + str(enrollmentMax))
+                        sections = []
+                        
+                        sectionCount = 0
+                        
+                        # -1 enrollment is our code for a section being cancelled.
+                        # Sort so that sections appended in order.
+                        for key in sorted(enrollmentDict.get(offering.term, {}).get(typeName, {})):
+                            tot = enrollmentDict.get(offering.term, {}).get(typeName, {}).get(key)
+                            m = enrollmentMaxDict.get(offering.term, {}).get(typeName, {}).get(key)
+                            
+                            if m >= 0 and tot >= 0:
+                                allClassesCancelled = False
+                                enrollmentTotal += int(tot)
+                                enrollmentMax += int(m)
+                                sectionCount += 1
+                                
+                                sections.append({
+                                    'name': str(typeName) + ' ' + str(key),
+                                    'total': tot,
+                                    'max': m,
+                                    'isCancelled': False,
+                                })
+                            else:
+                                sections.append({
+                                    'name': str(typeName) + ' ' + str(key),
+                                    'total': 0,
+                                    'max': 0,
+                                    'isCancelled': True,
+                                })
+                        
+                        enrollmentData.append({
+                            'enrollmentTotal': enrollmentTotal,
+                            'enrollmentMax': enrollmentMax,
+                            'sectionCount': sectionCount,
+                            'avgSize': int(enrollmentTotal / sectionCount) if sectionCount > 0 else "n/a",
+                            'sections': sections,
+                            'sectionType': typeName,
+                        })
                         
                     # Sort instructors
                     instructors = set()
