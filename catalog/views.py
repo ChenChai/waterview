@@ -254,7 +254,7 @@ def courseDetail(request, subject, code):
                     'total': 0,
                     'max': 0,
                     'isCancelled': True,
-                    'instructors': getInstructors(classOffering)
+                    #'instructors': getInstructors(classOffering)
                 })
             else:
                 # Both offering and class not cancelled
@@ -273,7 +273,7 @@ def courseDetail(request, subject, code):
                     'total': classOffering.enrollmentTotal,
                     'max': classOffering.enrollmentCapacity,
                     'isCancelled': False,
-                    'instructors': getInstructors(classOffering)
+                    #'instructors': getInstructors(classOffering)
                 })
 
 
