@@ -13,6 +13,7 @@
 		<div>
 		<table id="termTable">
 			<tr>
+				<th></th>
 				<th>Term</th>
 				<th></th>
 				<th>Status</th>
@@ -23,9 +24,8 @@
 			{% for term, info in term_list_items %}
 				{% if info %}
 
-
-				<tr class="js_toggle_box_unchecked" onclick="updateToggleBox(this)">
-
+				<tr onclick="updateToggleBox(this)" style="cursor:pointer;" class="js_toggle_box_unchecked" >
+					<td  >+</td>
 					<td>{{term}}</td>
 					<td class="nowrap">{{term.reverseName}}</td>
 					<td class="nowrap">{{info.status}}</td>
@@ -34,7 +34,7 @@
 					<td>
 							<div class="tooltip">
 							{{i.enrollmentTotal}}/{{i.enrollmentMax}}<br/>
-								<div class="tooltiptext nowrap">
+								<div class="nowrap subtitle toggle_visible">
 									Sections: {{i.sectionCount}}<br/>
 									Average Size: {{i.avgSize}}<br/>
 									
@@ -91,6 +91,15 @@
 		</table>
 		</div>
 		<script>
+		
+			function updateToggleBox(element) {
+				if (element.className == "js_toggle_box_unchecked") {
+					element.className = "js_toggle_box_checked"
+				} else {
+					element.className = "js_toggle_box_unchecked"
+				}
+			}
+			
 			function updateShowOffered() {
 				showOfferedCheck = document.getElementById("showOfferedCheck")
 				onlyShowOffered = showOfferedCheck.checked
