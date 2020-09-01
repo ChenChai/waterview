@@ -32,6 +32,10 @@ table {
 	border-collapse: collapse;
 }
 
+table * {
+	margin: 0px;
+}
+
 th {
 	text-align: left;
 	padding: 5px;
@@ -51,6 +55,10 @@ td {
 .subtitle {
 	color: grey;
 	font-style: italic;
+}
+
+.secondary {
+	color: rgb(200, 200, 200);
 }
 
 /* Generic containers */
@@ -117,10 +125,19 @@ td {
 }
 
 .js_toggle_box_checked .toggle_visible {
+
 }
 
 .js_toggle_box_unchecked .toggle_visible {
 	display: none;
+}
+
+.js_toggle_box_checked .toggle_visible_inverse {
+	display: none;
+}
+
+.js_toggle_box_unchecked .toggle_visible_inverse {
+
 }
 
 .tooltip {

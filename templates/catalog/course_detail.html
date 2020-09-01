@@ -2,14 +2,15 @@
 
 {% block content %}
 
-{% if exists %}
+{% if course_exists %}
 	<h1> {{ subject_code }} {{ catalog_code }}</h1>
 	<h3><a href="{{course.subject.getAbsoluteUrl}}">{{ course.subject.name }}</a> - {{ course.name }}</h3>
 	
-	{% if term_list_items %}
+	{% if offering_exists %}
 		<div>
 		<input type="checkbox" id="showOfferedCheck" onclick="updateShowOffered()"> 
 		<label for="showOfferedCheck">Show only terms where {{ subject_code }} {{ catalog_code }} was offered<br/><br/></label></div>
+		
 		<div>
 		<table id="termTable">
 			<tr>
@@ -19,62 +20,55 @@
 				<th>Status</th>
 				{% for type in section_types %}<th>{{type}}</th>{% endfor %}
 				<th>Instructors</th>
-			</tr>	
+			</tr>
 				
-			{% for term, info in term_list_items %}
-				{% if info %}
+			{% for term, data in term_data_items %}
+				{% if data.hasData %}
 
 				<tr onclick="updateToggleBox(this)" style="cursor:pointer;" class="js_toggle_box_unchecked" >
 					<td  >+</td>
 					<td>{{term}}</td>
 					<td class="nowrap">{{term.reverseName}}</td>
-					<td class="nowrap">{{info.status}}</td>
+					<td class="nowrap">{% if data.isCancelled %}<span title="cancelled">X</span>{% else %}<span title="offered">✓</span>{% endif %}</td>
 					
-					{% for i in info.enrollment %}
+					{% for sectionType, sectionData in data.enrollment_items %}
 					<td>
 							<div class="tooltip">
-							{{i.enrollmentTotal}}/{{i.enrollmentMax}}<br/>
-								<div class="nowrap subtitle toggle_visible">
-									Sections: {{i.sectionCount}}<br/>
-									Average Size: {{i.avgSize}}<br/>
-									
-									{% for sec in i.sections %}
-									<br/>{{ sec.name }}: {% if sec.isCancelled %}Cancelled {% else %} {{sec.total}}/{{sec.max}} {% endif %} 
-									{% endfor %}
-									</div>
+							{{sectionData.totalEnrollment}}/{{sectionData.maxEnrollment}}<br/>
+							<div class="nowrap secondary toggle_visible">
+								Sections: {{sectionData.sectionCount}}<br/>
+								Average Size: {{sectionData.averageSize}}<br/>
+								
+								{% for sec in sectionData.sections %}
+								<br/>{{ sectionType }} {{ sec.num}}: {% if sec.isCancelled %}X{% else %} {{sec.total}}/{{sec.max}} {% endif %} 
+								{% endfor %}
 								</div>
+							</div>
 					</td>
 					{% endfor %}
 					
 					<td>
-						{% if info.instructors %}
-						
-						{% comment %}
-						<input type="checkbox" class="toggle_box" id="{{term}}_toggle_box"/>
-						<label for="{{term}}_toggle_box">
-							+
-							<div>
-							{% for inst in info.instructors %}
-							<br/><a href="{{ inst.getAbsoluteUrl }}">{{ inst }}</a>
-							{% endfor %}
-							</div>
-						</label>
-						{% endcomment %}
-						{% for inst in info.instructors %}
-						<a href="{{ inst.getAbsoluteUrl }}">{{ inst }}</a> &nbsp;
+						{% if data.instructors %}
+						{% for inst in data.firstInstructors %}
+						<a href="{{ inst.getAbsoluteUrl }}">{{ inst }}</a>&nbsp; <br/ class="toggle_visible">
 						{% endfor %}
-						
+						{% if data.nextInstructors %} 
+								<span class="toggle_visible_inverse">+ {{data.nextInstructors|length}}</span>
+								{% for inst in data.nextInstructors %}
+									<a class="toggle_visible" href="{{ inst.getAbsoluteUrl }}">{{ inst }}</a>&nbsp;<br/ class="toggle_visible">
+								{% endfor %}
+						{% endif %}
 						{% else %}
-						Unknown
+						?
 						{% endif %}
 					</td>
 				</tr>
-
 				{% else %}
 				<tr style="color:grey;" class="offeredUnknown">
+					<td></td>
 					<td>{{ term.code }}</td>
-					<td>{{ term.reverseName }}</td>
-					<td>Unknown</td>
+					<td class="nowrap">{{ term.reverseName }}</td>
+					<td><span title="no data">?</span></td>
 					<td></td>
 				</tr>
 				
@@ -131,7 +125,8 @@
 			document.getElementById("showOfferedCheck").checked = true
 			updateShowOffered()
 		</script>
-
+		
+		
 	{% else %}
 		<p>There is no record of this course being offered.</p>
 	{% endif %}
