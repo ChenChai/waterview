@@ -227,6 +227,7 @@ def courseDetail(request, subject, code):
         
         # Returns true if a ClassOffering has any ClassLocation with isCancelled == true
         def isCancelled(classOffering):
+            return False
             for classLocation in classLocations:
                 if classLocation.classOffering == classOffering:
                     if classLocation.isCancelled: 
@@ -302,8 +303,62 @@ def courseDetail(request, subject, code):
             else: 
                 data[term]['firstInstructors'] =  data[term]['instructors']
         
-        context['term_data_items'] = sorted(data.items(), reverse=True)
+        
+        # Create chart data
+        termDataItems = sorted(data.items(), reverse=True)
+        
+        chartData = {
+            'labels': [],
+            'datasets': [],
+        }
+        
+        
+        def getSectionTypeColour(sectionType, alpha=1):
+            d = {
+                'LEC': '102, 102, 255',
+                'TUT': '152, 205, 170',
+                
+            }
+            
+            return 'rgba(' + d.get(sectionType, "203, 230, 212") + "," + str(alpha) + ')'
+        
+        
+        # One dataset for each section type
+        sectionTypes = sorted(sectionTypes)
+        for sectionType in sectionTypes: 
+            chartData['datasets'].append({
+                'label': sectionType,
+                'data': [],
+				'backgroundColor': getSectionTypeColour(sectionType, 0.2),
+				'borderColor':getSectionTypeColour(sectionType, 1),
+				'borderWidth': 1,
+                'pointRadius': 7,
+                'spanGaps': False, # Useful for null data.
+            })
+        
+        # Reverse to loop through terms from least to most recent
+        for term, info in reversed(termDataItems):
+            if (term > firstTermOffered and term < lastTermOffered) or term == firstTermOffered or term == lastTermOffered:
+                chartData['labels'].append(term.reverseName())
+                
+                # sectionTypes will be looped through in same order.
+                for i in range(0, len(sectionTypes)):
+                    sectionType = sectionTypes[i]
+                    
+                    if info['hasData'] == True:
+                        chartData['datasets'][i]['data'].append(info['enrollment'][sectionType]['totalEnrollment'])
+                    else:
+                        chartData['datasets'][i]['data'].append(0)
+
+                
+        
+            
+            
+        
+        
+        context['term_data_items'] = termDataItems
         context['section_types'] = sorted(sectionTypes)
+        context['chart_data'] = json.dumps(chartData)
 
     return render(request, 'catalog/course_detail.html', context=context)
 

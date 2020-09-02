@@ -47,6 +47,12 @@ class Term(models.Model):
         # Term codes are listed in ascending chronological order.
         return self.code > other.code
     
+    def __eq__(self, other):
+        return self.code == other.code
+    
+    def __hash__(self):
+        return int(self.code)
+    
 class Instructor(models.Model):
     """Model representing an instructor. At the moment, 
     instructors are unique by name, since we don't have access

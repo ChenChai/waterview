@@ -110,6 +110,16 @@ td {
 	flex-grow: 0;
 }
 
+/* https://www.chartjs.org/docs/latest/general/responsive.html#important-note! */
+.chart_container {
+	position: relative; 
+	height: 400px; 
+	width: 95%;
+	
+	align-self: center;
+	margin: 30px;
+}
+
 
 /* Multi-element constructs */
 .toggle_box {

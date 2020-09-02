@@ -6,7 +6,47 @@
 	<h1> {{ subject_code }} {{ catalog_code }}</h1>
 	<h3><a href="{{course.subject.getAbsoluteUrl}}">{{ course.subject.name }}</a> - {{ course.name }}</h3>
 	
+
+	
+	
+	
 	{% if offering_exists %}
+		<!-- https://www.chartjs.org/docs/latest/general/responsive.html#important-note! -->
+		
+		<script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js">
+		</script>
+		<div class="chart_container">
+			<canvas id="myChart">Chart of enrollment as a function of term.</canvas>
+		</div>
+		<script>
+		Chart.defaults.global.defaultFontColor = 'white';
+		var chartData = JSON.parse("{{chart_data|escapejs}}")
+		var ctx = document.getElementById('myChart').getContext('2d');
+		var myChart = new Chart(ctx, {
+			type: 'line',
+			data: chartData,
+			options: {
+				scales: {
+					yAxes: [{
+						ticks: {
+							beginAtZero: true
+						}
+					}],
+					xAxes:[{
+						ticks: {
+							padding: 10
+						}
+					}],
+				},
+				title: {
+					display: true,
+					text: 'Enrollment'
+				},
+				maintainAspectRatio: false,
+			},
+		});
+		</script>
+	
 		<div>
 		<input type="checkbox" id="showOfferedCheck" onclick="updateShowOffered()"> 
 		<label for="showOfferedCheck">Show only terms where {{ subject_code }} {{ catalog_code }} was offered<br/><br/></label></div>
