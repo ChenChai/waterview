@@ -332,7 +332,7 @@ def courseDetail(request, subject, code):
 				'backgroundColor': getSectionTypeColour(sectionType, 0.2),
 				'borderColor':getSectionTypeColour(sectionType, 1),
 				'borderWidth': 1,
-                'pointRadius': 7,
+                'pointRadius': 3,
                 'spanGaps': False, # Useful for null data.
             })
         
