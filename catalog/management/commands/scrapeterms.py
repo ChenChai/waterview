@@ -34,7 +34,7 @@ class Command(BaseCommand):
         
         # Loop through each term looking for courses that don't exist yet.
         for term in terms:
-            termCode = term['code']
+            termCode = term['termCode']
             termName = term['name']
             
             if not existingDict.get(termCode, False) == True:
