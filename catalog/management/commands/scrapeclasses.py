@@ -38,17 +38,6 @@ class Command(BaseCommand):
         #        + str(existing.courseOffering.term), {})[str(existing.classNum)] = True
         #print("Done!")
 
-         Get the combinations of which subjects were offered
-         in each term. 
-        cursor.execute("""
-            SELECT DISTINCT term_id, subject_id
-            FROM catalog_courseoffering
-            JOIN catalog_course ON 
-                catalog_course.id = catalog_courseoffering.course_id
-            """)
-        
-        result = cursor.fetchall()
-        
         def addClass(classOffering, termCode):
         
             subjectCode = classOffering['subject']
@@ -398,11 +387,13 @@ class Command(BaseCommand):
             #print(soup.table.contents)
             return classes
 
-        #termCode = 1209
-        #subject = "MATH"
-
-        #scrapeScheduleOfClasses(termCode, subject, "graduate")
-
+        # Get the combinations of subjects and terms
+        cursor.execute("""
+            SELECT catalog_term.code, catalog_subject.code
+            FROM catalog_subject, catalog_term""")
+        
+        result = cursor.fetchall()
+        
         for row in result:
             termCode = row[0]
             subjectCode = row[1]
