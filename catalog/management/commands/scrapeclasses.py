@@ -128,8 +128,9 @@ class Command(BaseCommand):
             assert(academicLevel == "undergraduate" or academicLevel == "graduate")
             print("Scraping term " + str(termCode) + " subject " + subject)
             level = "grad" if academicLevel == "graduate" else "under" 
-            response = requests.get(
-                f"https://classes.uwaterloo.ca/cgi-bin/cgiwrap/infocour/salook.pl?level=under&sess={termCode}&subject={subject}")
+            url = f"https://classes.uwaterloo.ca/cgi-bin/cgiwrap/infocour/salook.pl?level={level}&sess={termCode}&subject={subject}"
+            print("fetching " + url)
+            response = requests.get(url)
             soup = BeautifulSoup(response.content, 'html.parser')
             
             # Object to return.
@@ -363,13 +364,15 @@ class Command(BaseCommand):
             # 
             # classes = response.json()['data']
             
-            underClasses = scrapeScheduleOfClasses(str(termCode), subjectCode, "undergraduate")
-            if underClasses != None:
-                for classOffering in underClasses:
-                    addClass(classOffering, str(termCode))
+            #underClasses = scrapeScheduleOfClasses(str(termCode), subjectCode, "undergraduate")
+            #if underClasses != None:
+            #    for classOffering in underClasses:
+            #        addClass(classOffering, str(termCode))
             
+            if int(termCode) > 1209: 
+                continue
             
-            gradClasses = scrapeScheduleOfClasses(str(termCode), subjectCode, "undergraduate")
+            gradClasses = scrapeScheduleOfClasses(str(termCode), subjectCode, "graduate")
             if gradClasses != None:
                 for classOffering in gradClasses:
                     addClass(classOffering, str(termCode))
