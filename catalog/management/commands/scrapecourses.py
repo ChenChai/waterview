@@ -122,7 +122,7 @@ class Command(BaseCommand):
             
             for course in courses:
                 insertCourse(course)
-                insertCourseOffering(course, termCode)
+                #insertCourseOffering(course, termCode)
 
 
 
