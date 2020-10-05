@@ -19,27 +19,8 @@ class Command(BaseCommand):
         key = env("OPENDATA_V2_KEY")
         cursor = connection.cursor()
         
-        # Set up existing instructor and ClassOffering dictionaries.
-        
-        print("Building existing instructors dict")
-        #existingInstructors = list(Instructor.objects.all())
-        existingInstructorsDict = {}
-        #for existing in existingInstructors:
-        #    existingInstructorsDict.setdefault(existing.firstName, {})[existing.lastName] = True
-        #print("Done!")
-
-        print("Building existing classes dict")
-        #existingClasses = list(ClassOffering.objects.all().select_related('courseOffering','courseOffering__course','courseOffering__course__subject','courseOffering__term'))
-        existingClassesDict = {}
-        #for existing in existingClasses:
-        #    existingClassesDict.setdefault(
-        #        str(existing.courseOffering.course.subject)
-        #        + existing.courseOffering.course.code 
-        #        + str(existing.courseOffering.term), {})[str(existing.classNum)] = True
-        #print("Done!")
-
+        # Adds a ClassOffering object, given a term and JSON object for a class.
         def addClass(classOffering, termCode):
-        
             subjectCode = classOffering['subject']
             courseCatalogNum = classOffering['catalog_number']
             classNum = classOffering['class_number']
@@ -47,13 +28,20 @@ class Command(BaseCommand):
             # Find existing models
             termModel = Term.objects.get(code=termCode)
             subjectModel = Subject.objects.get(code=subjectCode)
-            courseModel = Course.objects.get(subject=subjectModel, code=courseCatalogNum)
-            courseOfferingModel = CourseOffering.objects.get(
-                term=termModel, course=courseModel)
             
-            if existingClassesDict.get(subjectCode+courseCatalogNum+termCode, {}).get(str(classNum), False) == True:
+            # Add corresponding course/courseoffering if they don't exist yet
+            if not Course.objects.filter(subject=subjectModel, code=courseCatalogNum).exists():
+                Course(subject=subjectModel, code=courseCatalogNum, name=classOffering['title']).save()
+            courseModel = Course.objects.get(subject=subjectModel, code=courseCatalogNum)
+            
+            if not CourseOffering.objects.filter(term=termModel, course=courseModel).exists():
+                CourseOffering(term=termModel, course=courseModel).save()
+            courseOfferingModel = CourseOffering.objects.get(term=termModel, course=courseModel)
+            
+            classRecord = None
+            if ClassOffering.objects.filter(courseOffering=courseOfferingModel, classNum=classNum).exists():
                 # Already exists; skip insert.
-                classRecord = ClassOffering.objects.get(classNum=classNum, courseOffering=courseOfferingModel)
+                classRecord = ClassOffering.objects.get(courseOffering=courseOfferingModel, classNum=classNum)
                 print("    Class exists; updating reserves/locations for: " + str(classRecord))
 
             else: 
@@ -73,9 +61,7 @@ class Command(BaseCommand):
                 
                 print("    Adding class: " + str(classRecord))
                 classRecord.save()
-                
-                existingClassesDict.setdefault(subjectCode+courseCatalogNum+termCode, {})[classNum] = True
-                                
+                                                
             # Delete existing Reserve and ClassLocation objects associated with this class.
             # We'll re-insert the data even if the class already exists.
             ClassLocation.objects.filter(classOffering=classRecord).delete()
@@ -106,23 +92,17 @@ class Command(BaseCommand):
                     else:
                         firstName = ""
                     
-                    if existingInstructorsDict.get(firstName, {}).get(lastName, False) == True:
+                    if Instructor.objects.filter(firstName=firstName, lastName=lastName).exists():
                         # instructor already exists.
                         instructors.append(Instructor.objects.get(firstName=firstName, lastName=lastName))
                     else:
-                        try:
-                            instructorRecord = Instructor(
-                                firstName=firstName,
-                                lastName=lastName,
-                            )
-                            print("        Adding Instructor: " + str(fullName))
-
-                            instructorRecord.save()
-                            existingInstructorsDict.setdefault(firstName, {})[lastName] = True
-                            
-                            instructors.append(instructorRecord)
-                        except IntegrityError as e:
-                            print("        Error: " + str(e))
+                        instructorRecord = Instructor(
+                            firstName=firstName,
+                            lastName=lastName,
+                        )
+                        print("        Adding Instructor: " + str(fullName))
+                        instructorRecord.save()                        
+                        instructors.append(instructorRecord)
                         
                 locationRecord = ClassLocation(
                     classOffering =classRecord,
@@ -191,9 +171,7 @@ class Command(BaseCommand):
                     catalogNumber = str(tds[1].string.strip())
                     units         = str(tds[2].string.strip())
                     title         = str(tds[3].string.strip())
-                    
-                    print("Found values: subject=" + subject + " catalogNumber=" + catalogNumber + " units=" + units + " title=" + title)
-                    
+                                        
                     i = i + 1
                     tr = rows[i]
                     
@@ -201,7 +179,6 @@ class Command(BaseCommand):
                     note = None
                     if tr.b != None and tr.b.string == "Notes:":
                         note = str(tr.td.contents[1].strip)
-                        print("Note found: " + str(note))
                         
                         i = i + 1
                         tr = rows[i]
@@ -216,7 +193,6 @@ class Command(BaseCommand):
                         classTr = classRows[j]
                         
                         classTds = classTr.find_all(['th', 'td'])
-                        print("Parsing [" + str(j) + "]: " + str(classTds))
                         # make sure that everything lines up with what we expect.
                         if j == 0:
                             assert(len(classTds) == 13
@@ -243,60 +219,28 @@ class Command(BaseCommand):
                             enrollmentCapacity      = str(classTds[1].string.strip())  if classTds[1].string != None else None
                             enrollmentTotal         = str(classTds[2].string.strip())  if classTds[2].string != None else None
                             
-                            print("--------------------Reserve found! " + reserveGroup + " " + enrollmentTotal + "/" + enrollmentCapacity)
                             classes[-1]["reserves"].append({
                                 "reserve_group": reserveGroup,
                                 "enrollment_capacity": enrollmentCapacity,
                                 "enrollment_total": enrollmentTotal,
                             })
                             
-                            
-                            # Assert there's no information we're missing for some reason:
-                            
-                            
-                            
-                            # check if there's another instructor listed.
-                            # If there is, it will be in index 8.
-                            if len(classTds) >= 9 and classTds[8].string != None and len(classTds[8].string) > 0:
-                                instructor = str(classTds[8].strip())
-                                classes[-1]["classes"][0]["instructors"].append(instructor)
-                                
                         elif classTds[0].i != None and classTds[0].i.string.startswith("Held With:"):
                             # Check if the previous section was "Held With" another class.
-                            
                             # Grab held_with group from stuff after colon.
                             heldWith = str(classTds[0].string.split(':', 2)[1].strip())
                             
-                            print("--------------------Held With Found! " + heldWith)
                             classes[-1]["held_with"].append(heldWith)
                             
-                            # check if there's another instructor listed.
-                            # If there is, it will be in index 3.
-                            if len(classTds) >= 4 and classTds[3].string != None and len(classTds[3].string) > 0:
-                                instructor = str(classTds[3].string.strip())
-                                classes[-1]["classes"][0]["instructors"].append(instructor)                        
-                                
                         elif classTds[0].i != None and classTds[0].i.string.startswith("Topic:"):
                             # Check if the previous section has a topic.
-                            
-                            assert(len(classTds) == 3)
-                            
-                            # Grab held_with group from stuff after colon.
                             topic = str(classTds[0].string.split(':', 2)[1].strip())
                             
-                            print("--------------------Topic Found! " + heldWith)
                             classes[-1]["topic"] = topic
                             
-                            # check if there's another instructor listed.
-                            # If there is, it will be in index 3.
-                            #if len(classTds) >= 4 and classTds[3].string != None and len(classTds[3].string) > 0:
-                            #    instructor = str(classTds[3].string.strip())
-                            #    classes[-1]["classes"][0]["instructors"].append(instructor)
-                                
-                        elif len(classTds) == 11 and classTds[10].string == "Cancelled Section":                        
-                            # Check if the previous section was cancelled.
-                            classes[-1]["classes"][0]["date"]["is_cancelled"] = True
-                            
+                        elif len(classTds[0].string.strip()) == 0:
+                            # Empty row; contains extra instructor, cancelled section, etc.
+                            "" 
                         else:
                             assert(len(classTds) == 12 or len(classTds) == 13)
                             # Regular class entry.
@@ -316,7 +260,8 @@ class Command(BaseCommand):
                             building                = buildingRoom.split(' ', 2)[0] if buildingRoom != None and len(buildingRoom) > 0 else None
                             room                    = buildingRoom.split(' ', 2)[1] if buildingRoom != None and len(buildingRoom) > 0 else None
                             
-                            instructor              = str(classTds[12].string.strip() if len(classTds) > 12 and classTds[12].string != None else None)
+                            # Instructors will be located in next step
+                            #instructor              = str(classTds[12].string.strip() if len(classTds) > 12 and classTds[12].string != None else None)
                             
                             # TBA is held in the time section
                             isTBA = False
@@ -361,9 +306,7 @@ class Command(BaseCommand):
                                             "building": building,
                                             "room": room
                                         },
-                                        "instructors": [
-                                            instructor
-                                        ]
+                                        "instructors": []
                                     }
                                 ],
                                 "held_with": [
@@ -371,44 +314,68 @@ class Command(BaseCommand):
                                 ],
                                 "term": termCode,
                                 "academic_level": academicLevel,
-                                "last_updated": "2020-10-04T15:03:16-04:00"
+                                "last_updated": ""
                             })
+                            
+                            
+                            column = 0
+                            for td in classTds:
 
-                        
+                                # 12 is instructor column
+                                if column == 12:
+                                    if len(td.string.strip()) > 0:
+                                        classes[-1]["classes"][0]["instructors"].append(str(td.string.strip()))
+                                
+                                elif td.string != None:
+                                    if td.string.strip() == "Cancelled Section":
+                                        classes[-1]["classes"][0]["date"]["is_cancelled"] = True
+                                    if td.string.strip() == "Closed Section":
+                                        classes[-1]["classes"][0]["date"]["is_closed"] = True
+                                
+                                # Keep track of which column we're on.
+                                column = column + td.get('colspan', 1)
                         
                         j = j + 1
                         
                     i = i + 1
                     tr = rows[i]
-                    print(tr)
                     assert(len(tr.td.contents) == 0)
                 i = i + 1
             
-            #print(soup.table.contents)
             return classes
 
         # Get the combinations of subjects and terms
         cursor.execute("""
             SELECT catalog_term.code, catalog_subject.code
-            FROM catalog_subject, catalog_term""")
+            FROM catalog_subject, catalog_term
+            ORDER BY catalog_term.code DESC""")
         
         result = cursor.fetchall()
         
         for row in result:
             termCode = row[0]
             subjectCode = row[1]
+            
+            if int(termCode) > 1209: 
+                continue
+            
             print("Searching Term/Subject" + str(row))
             
-            # API call to get classes for this term.
+            # Legacy: API call to get classes for this term.
             # response = requests.get(
             #     f"https://api.uwaterloo.ca/v2/terms/{termCode}/{subjectCode}/schedule.json?key={key}")
             # 
             # classes = response.json()['data']
             
-            classes = scrapeScheduleOfClasses(termCode, subjectCode, "undergraduate").append(scrapeScheduleOfClasses(termCode, subjectCode, "graduate"))
+            underClasses = scrapeScheduleOfClasses(str(termCode), subjectCode, "undergraduate")
+            if underClasses != None:
+                for classOffering in underClasses:
+                    addClass(classOffering, str(termCode))
             
-            # Loop through classes, adding each one
-            for classOffering in classes:
-                addClass(classOffering, termCode)
+            
+            gradClasses = scrapeScheduleOfClasses(str(termCode), subjectCode, "undergraduate")
+            if gradClasses != None:
+                for classOffering in gradClasses:
+                    addClass(classOffering, str(termCode))
             
         print("Done!")
