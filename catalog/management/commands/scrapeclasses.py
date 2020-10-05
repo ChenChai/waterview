@@ -364,13 +364,10 @@ class Command(BaseCommand):
             # 
             # classes = response.json()['data']
             
-            #underClasses = scrapeScheduleOfClasses(str(termCode), subjectCode, "undergraduate")
-            #if underClasses != None:
-            #    for classOffering in underClasses:
-            #        addClass(classOffering, str(termCode))
-            
-            if int(termCode) > 1209: 
-                continue
+            underClasses = scrapeScheduleOfClasses(str(termCode), subjectCode, "undergraduate")
+            if underClasses != None:
+                for classOffering in underClasses:
+                    addClass(classOffering, str(termCode))
             
             gradClasses = scrapeScheduleOfClasses(str(termCode), subjectCode, "graduate")
             if gradClasses != None:
