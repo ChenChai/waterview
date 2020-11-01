@@ -193,7 +193,7 @@ class ClassLocation(models.Model):
     # When the course runs.
     startTime = models.CharField(max_length=10, null=True)
     endTime = models.CharField(max_length=10, null=True)
-    weekdays = models.CharField(max_length=10, null=True)
+    weekdays = models.CharField(max_length=100, null=True)
     
     # Where the course runs.
     building = models.CharField(max_length=100, null=True)
