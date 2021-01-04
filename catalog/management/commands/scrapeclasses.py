@@ -155,7 +155,7 @@ class Command(BaseCommand):
                 tds = tr.find_all(['td', 'th'])
                 if (len(tds) == 4 
                     and tds[0].string == "Subject" 
-                    and tds[1].string == "Catalog #" 
+                    and (tds[1].string == "Catalog #" or tds[1].string == "Catalog#")
                     and tds[2].string == "Units" 
                     and tds[3].string == "Title"):
                     
@@ -195,11 +195,11 @@ class Command(BaseCommand):
                         classTds = classTr.find_all(['th', 'td'])
                         # make sure that everything lines up with what we expect.
                         if j == 0:
-                            assert(len(classTds) == 13
-                                and classTds[0].string == "Class" 
+                            assert(len(classTds) == 13 and
+                                (classTds[0].string == "Class" 
                                 and classTds[1].string == "Comp Sec" 
                                 and classTds[2].string == "Camp Loc" 
-                                and classTds[3].string == "Assoc Class" 
+                                and (classTds[3].string == "Assoc. Class" or classTds[3].string == "Assoc Class")
                                 and classTds[4].string == "Rel 1" 
                                 and classTds[5].string == "Rel 2" 
                                 and classTds[6].string == "Enrl Cap" 
@@ -208,8 +208,7 @@ class Command(BaseCommand):
                                 and classTds[9].string == "Wait Tot"
                                 and classTds[10].string == "Time Days/Date" 
                                 and classTds[11].string == "Bldg Room" 
-                                and classTds[12].string == "Instructor" 
-                            )
+                                and classTds[12].string == "Instructor"))
                         elif classTds[0].i != None and classTds[0].i.string.startswith("Reserve:"):
                             # Check if this is a reserve.
                             # If it is, add the reserve to the last class we saw.
@@ -258,7 +257,7 @@ class Command(BaseCommand):
                             
                             buildingRoom            = str(classTds[11].string.strip()) if classTds[11].string != None else None
                             building                = buildingRoom.split(' ', 2)[0] if buildingRoom != None and len(buildingRoom) > 0 else None
-                            room                    = buildingRoom.split(' ', 2)[1] if buildingRoom != None and len(buildingRoom) > 0 else None
+                            room                    = buildingRoom.split(' ', 2)[1] if buildingRoom != None and len(buildingRoom.split(' ')) > 1 else None
                             
                             # Instructors will be located in next step
                             #instructor              = str(classTds[12].string.strip() if len(classTds) > 12 and classTds[12].string != None else None)
@@ -344,12 +343,12 @@ class Command(BaseCommand):
             
             return classes
 
-        # Get the combinations of subjects and terms
+        # Get the cross product of subjects and terms
         cursor.execute("""
             SELECT catalog_term.code, catalog_subject.code
             FROM catalog_subject, catalog_term
             ORDER BY catalog_term.code DESC""")
-        
+
         result = cursor.fetchall()
         
         for row in result:
