@@ -12,14 +12,12 @@
 	
 	{% if offering_exists %}
 		<!-- https://www.chartjs.org/docs/latest/general/responsive.html#important-note! -->
-		
-		<script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js">
-		</script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js" integrity="sha512-QSkVNOCYLtj73J4hbmVoOV6KVZuMluZlioC+trLpewV8qMjsWqlIQvkn1KGX2StWvPMdWGBqim1xlC8krl1EKQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>	
 		<div class="chart_container">
 			<canvas id="myChart">Chart of enrollment as a function of term.</canvas>
 		</div>
 		<script>
-		Chart.defaults.global.defaultFontColor = 'white';
+//		Chart.defaults.global.defaultFontColor = 'white';
 		var chartData = JSON.parse("{{chart_data|escapejs}}")
 		var ctx = document.getElementById('myChart').getContext('2d');
 		var myChart = new Chart(ctx, {
